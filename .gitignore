@@ -1,3 +1,28 @@
 .env
+# Python
+__pycache__/
+*.pyc
 .venv/
+venv/
 
+# Jupyter
+.ipynb_checkpoints/
+
+# Training
+wandb/
+runs/
+logs/
+checkpoints/
+outputs/
+
+# Models
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Dataset
+datasets/
+
+# OS
+.DS_Store
