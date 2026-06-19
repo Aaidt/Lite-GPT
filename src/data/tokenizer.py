@@ -21,12 +21,12 @@ if p.exists() and p.is_file():
         text = f.read()
 
     tokens = encoder.encode(text)
-    # print(tokens[:100])   
     tokens = np.array(tokens, dtype=np.uint16)
 
-    train_tokens = tokens[: int(0.9 * len(tokens))]
-    val_tokens = tokens[int(0.9 * len(tokens)): ]
+    train_tokens = tokens[: int(cfg.train_split * len(tokens))]
+    val_tokens = tokens[int(cfg.train_split * len(tokens)): ]
 
+    print(f"Vocab size: {encoder.n_vocab:,}")
     print(f"Total tokens: {len(tokens):,}")
     print(f"Training tokens: {len(train_tokens):,}")
     print(f"Val tokens: {len(val_tokens):,}")
@@ -34,11 +34,9 @@ if p.exists() and p.is_file():
     if not train_file.exists() and not val_file.exists():
         train_file.parent.mkdir(parents=True, exist_ok=True)
         val_file.parent.mkdir(parents=True, exist_ok=True)
-        # train_file.touch()
-        # val_file.touch()
 
-    train_tokens.tofile(cfg.train_bin)
-    val_tokens.tofile(cfg.val_bin)
+    train_tokens.tofile(train_file)
+    val_tokens.tofile(val_file)
 
     print(f"\ntrain.bin: {train_file.stat().st_size / 1024:.2f} KB")
     print(f"val.bin: {val_file.stat().st_size / 1024:.2f} KB")

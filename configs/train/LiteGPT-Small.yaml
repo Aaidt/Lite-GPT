@@ -1,0 +1,22 @@
+batch_size: 64
+
+max_iters: 5000
+
+learning_rate: 3e-4
+weight_decay: 0.1
+
+beta1: 0.9
+beta2: 0.95
+
+warmup_iters: 200
+
+eval_interval: 200
+eval_iters: 100
+
+grad_clip: 1.0
+
+device: cuda
+
+compile: true
+
+seed: 42
