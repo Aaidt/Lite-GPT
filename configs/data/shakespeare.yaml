@@ -9,3 +9,4 @@ val_bin: ./src/data/shakespeare/val.bin
 
 train_split: 0.9
 
+tokenizer: gpt2

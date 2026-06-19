@@ -2,9 +2,9 @@ import requests
 from pathlib import Path
 from omegaconf import OmegaConf
 
-shakespeare_conf = OmegaConf.load("../../configs/data/shakespeare.yaml")
-url = shakespeare_conf.url
-raw_file = Path(shakespeare_conf.raw_file)
+cfg = OmegaConf.load("../../configs/data/shakespeare.yaml")
+url = cfg.url
+raw_file = Path(cfg.raw_file)
 
 raw_file.parent.mkdir(parents=True, exist_ok=True)
 
