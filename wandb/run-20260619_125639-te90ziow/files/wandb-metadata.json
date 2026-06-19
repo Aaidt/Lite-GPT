@@ -1,0 +1,16 @@
+{
+  "os": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "python": "CPython 3.11.13",
+  "startedAt": "2026-06-19T07:26:39.726042Z",
+  "program": "/home/aadit/Documents/coding/Lite-GPT/test.py",
+  "codePath": "test.py",
+  "codePathLocal": "test.py",
+  "git": {
+    "remote": "git@github.com:Aaidt/Lite-GPT.git"
+  },
+  "email": "codexbuild.dev@gmail.com",
+  "root": "/home/aadit/Documents/coding/Lite-GPT",
+  "host": "aadit-HP-Laptop-14s-cs3xxx",
+  "executable": "/home/aadit/Documents/coding/Lite-GPT/.venv/bin/python3",
+  "writerId": "ovzek2u26auwv55k7h15ok1m2c090o9n"
+}

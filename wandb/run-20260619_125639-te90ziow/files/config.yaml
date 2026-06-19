@@ -1,0 +1,36 @@
+_wandb:
+    value:
+        cli_version: 0.27.2
+        e:
+            ovzek2u26auwv55k7h15ok1m2c090o9n:
+                codePath: test.py
+                codePathLocal: test.py
+                email: codexbuild.dev@gmail.com
+                executable: /home/aadit/Documents/coding/Lite-GPT/.venv/bin/python3
+                git:
+                    remote: git@github.com:Aaidt/Lite-GPT.git
+                host: aadit-HP-Laptop-14s-cs3xxx
+                os: Linux-6.14.0-37-generic-x86_64-with-glibc2.39
+                program: /home/aadit/Documents/coding/Lite-GPT/test.py
+                python: CPython 3.11.13
+                root: /home/aadit/Documents/coding/Lite-GPT
+                startedAt: "2026-06-19T07:26:39.726042Z"
+                writerId: ovzek2u26auwv55k7h15ok1m2c090o9n
+        m: []
+        python_version: 3.11.13
+        t:
+            "3":
+                - 2
+                - 16
+            "4": 3.11.13
+            "5": 0.27.2
+            "12": 0.27.2
+            "13": linux-x86_64
+architecture:
+    value: CNN
+dataset:
+    value: CIFAR-100
+epochs:
+    value: 10
+learning_rate:
+    value: 0.02
