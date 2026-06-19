@@ -4,8 +4,8 @@ url: https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakesp
 
 raw_file: ./datasets/shakespeare.txt
 
-train_bin: ./src/data/shakespeare/train.bin
-val_bin: ./src/data/shakespeare/val.bin
+train_bin: ./datasets/tokens/train.bin
+val_bin: ./datasets/tokens/val.bin
 
 train_split: 0.9
 
