@@ -34,21 +34,22 @@ Input Tokens [B, T]
 ╔══════════════════════════════╗
 ║ Transformer Block × 4        ║
 ║                              ║
-║  LayerNorm                   ║
-║      │                       ║
-║      ▼                       ║
-║  Multi-Head Attention        ║
-║      │                       ║
-║      ▼                       ║
-║  Residual Add                ║
-║                              ║
-║  LayerNorm                   ║
-║      │                       ║
-║      ▼                       ║
-║     FFN                      ║
-║      │                       ║
-║      ▼                       ║
-║  Residual Add                ║
+║       LayerNorm              ║
+║           │                  ║
+║           ▼                  ║
+║     Multi-Head Attention     ║
+║           │                  ║
+║           ▼                  ║
+║       Residual Add           ║
+║           │                  ║
+║           ▼                  ║
+║       LayerNorm              ║
+║           │                  ║
+║           ▼                  ║
+║          FFN                 ║
+║           │                  ║
+║           ▼                  ║
+║      Residual Add            ║
 ╚══════════════════════════════╝
             │
             ▼
