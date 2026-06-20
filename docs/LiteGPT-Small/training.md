@@ -1,4 +1,4 @@
-<!-- # Training
+# Training
 
 ## Hardware
 
@@ -85,4 +85,4 @@ Observations:
 |---------|---------|
 | Train Loss | |
 | Val Loss | |
-| Perplexity | | -->
+| Perplexity | |

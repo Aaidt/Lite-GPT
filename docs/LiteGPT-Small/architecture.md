@@ -1,5 +1,7 @@
 # Model Architecture
 
+The goal of LiteGPT is not to achieve state-of-the-art performance, but to provide a clean and understandable implementation of a GPT-style language model that can be trained from scratch and extended with modern techniques in future experiments.
+
 ## Overview
 - Model type: Decoder-only Transformer
 - Parameters: ~16M
@@ -132,6 +134,3 @@ Features such as RoPE, GQA, FlashAttention, SwiGLU, RMSNorm, and Mixture-of-Expe
 
 ### Small Scale Training
 The model is designed to train on a single NVIDIA T4 GPU using Google Colab. Model size, context length, and batch size are chosen to fit within limited compute resources.
-
-### Educational Focus
-The goal of LiteGPT is not to achieve state-of-the-art performance, but to provide a clean and understandable implementation of a GPT-style language model that can be trained from scratch and extended with modern techniques in future experiments.
