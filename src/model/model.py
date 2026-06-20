@@ -32,6 +32,7 @@ class TransformerBlock(nn.Module):
 
     def __init__(self, cfg: DictConfig | ListConfig = model_cfg) -> None:
         super().__init__()
+        
 
 
 class LiteGPT(nn.Module):
