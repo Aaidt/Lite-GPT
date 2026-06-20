@@ -53,8 +53,22 @@ class CausalSelfAttention(nn.Module):
 
 class MLP(nn.Module):
     
-    def __init__(self) -> None:
+    def __init__(self, cfg: DictConfig | ListConfig = model_cfg) -> None:
         super().__init__()
+
+        self.config = cfg
+        self.d_model = self.config.d_model
+        
+        self.c_fc = nn.Linear(self.d_model, 4 * self.d_model)
+        self.gelu = nn.GELU(approximate="tanh")
+        self.c_proj = nn.Linear(4 * self.d_model, self.d_model)
+    
+    def forward(self, x: Tensor) -> Tensor:
+        x = self.c_fc(x)
+        x = self.gelu(x)
+        x = self.c_proj(x)
+
+        return x
 
 
 class TransformerBlock(nn.Module):
@@ -62,6 +76,19 @@ class TransformerBlock(nn.Module):
     def __init__(self, cfg: DictConfig | ListConfig = model_cfg) -> None:
         super().__init__()
 
+        self.config = cfg
+        self.d_model = self.config.d_model
+
+        self.ln_1 = nn.LayerNorm(self.d_model)
+        self.attn = CausalSelfAttention(self.config)
+        self.ln_2 = nn.LayerNorm(self.d_model)
+        self.mlp = MLP(self.config)
+    
+    def forward(self, x: Tensor) -> Tensor:
+        x = x + self.attn(self.ln_1(x))
+        x = x + self.mlp(self.ln_2(x))
+
+        return x
 
 
 class LiteGPT(nn.Module):
