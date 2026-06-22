@@ -13,13 +13,13 @@ class LiteGPTDataLoader:
         self, 
         split: Literal["train", "val"], 
         batch_size: int = train_cfg.batch_size,
-        seq_len: int = model_cfg.seq_length
+        seq_len: int = model_cfg.seq_len
     ) -> None:
         
         if split == "train":
-            path = data_cfg.train_file
+            path = data_cfg.train_bin
         else:
-            path = data_cfg.val_file
+            path = data_cfg.val_bin
             
         self.batch_size = batch_size
         self.seq_len = seq_len
