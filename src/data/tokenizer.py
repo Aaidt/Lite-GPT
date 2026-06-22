@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from omegaconf import OmegaConf
 
-cfg = OmegaConf.load("../../configs/data/shakespeare.yaml")
+cfg = OmegaConf.load("./configs/data/shakespeare.yaml")
 
 encoder = tiktoken.get_encoding(cfg.tokenizer)
 assert encoder.decode(

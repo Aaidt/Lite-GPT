@@ -6,9 +6,7 @@ from pathlib import Path
 from typing import Tuple
 from omegaconf import OmegaConf, DictConfig, ListConfig
 
-model_cfg = OmegaConf.load(
-    Path(__file__).resolve().parent.parent.parent / "configs/model/LiteGPT-Small.yaml"
-)
+model_cfg = OmegaConf.load("./configs/model/LiteGPT-Small.yaml")
 
 
 class CausalSelfAttention(nn.Module):

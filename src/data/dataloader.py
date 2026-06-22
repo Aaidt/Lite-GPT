@@ -3,9 +3,9 @@ from typing import Literal, Tuple
 from omegaconf import OmegaConf
 import numpy as np
 
-model_cfg = OmegaConf.load("../../configs/model/LiteGPT-Small.yaml")
-train_cfg = OmegaConf.load("../../configs/train/LiteGPT-Small.yaml")
-data_cfg = OmegaConf.load("../../configs/data/shakespeare.yaml")
+model_cfg = OmegaConf.load("./configs/model/LiteGPT-Small.yaml")
+train_cfg = OmegaConf.load("./configs/train/LiteGPT-Small.yaml")
+data_cfg = OmegaConf.load("./configs/data/shakespeare.yaml")
 
 class LiteGPTDataLoader:
 
