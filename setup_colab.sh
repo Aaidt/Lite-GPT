@@ -2,9 +2,10 @@
 set -e
 
 echo "creating necessary folders needed..."
-mkdir checkpoints results logs
+mkdir -p checkpoints results logs
 
 echo "cloning repo..."
+rm -rf Lite-GPT
 git clone https://github.com/Aaidt/Lite-GPT.git
 
 echo "moving checkpoints/results/logs files into the repo..."
@@ -27,20 +28,18 @@ echo "Tokenizing the dataset..."
 python -m src.data.tokenizer
 
 echo "check installed dataset and tokens..."
-cd src/data/datasets/ && ls && cd ../..
+ls src/data/datasets/
+ls src/data/datasets/tokens 
 
-cat << EOF
+echo ""
+read -p "Start training? [y/N]: " choice
 
-To log into wandb run:
-
-import wandb
-wandb.login(key="YOUR_API_KEY")
-
-Run training:
-
-python -m src.training.train
-
-EOF
-
-
-echo "setup complete!!!"
+case "$choice" in
+    [yY]|[yY][eE][sS])
+        echo "Starting training..."
+        python -m src.training.train
+        ;;
+    *)
+        echo "Setup complete. Training not started."
+        ;;
+esac
