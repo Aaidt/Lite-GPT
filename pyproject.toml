@@ -11,6 +11,10 @@ dependencies = [
     "requests>=2.34.2",
     "safetensors>=0.8.0",
     "tiktoken>=0.13.0",
-    "torch>=2.12.1",
     "wandb>=0.27.2",
+]
+
+[dependency-groups]
+train = [
+    "torch>=2.12.1",
 ]
