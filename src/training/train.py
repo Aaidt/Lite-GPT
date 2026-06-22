@@ -91,13 +91,16 @@ model.train()
 accumulated_loss = 0.0
 grad_accum_steps = train_cfg.grad_accum_steps
 
+step_start: float | None = None
+
+assert train_cfg.max_iters % grad_accum_steps == 0, "grad_accum_steps should completely divide max_iters otherwise grads at the end will be ignored"
+
 for i in range(train_cfg.max_iters):
-    assert train_cfg.max_iters % grad_accum_steps == 0, "grad_accum_steps should completely divide max_iters otherwise grads at the end will be ignored"
-    t0: float = 0.0
+
     if i % grad_accum_steps == 0:
         if device == "cuda":
             torch.cuda.synchronize()
-        t0 = time.time()
+        step_start = time.time()
 
     x, y = train_loader.get_batch()
     x, y = x.to(device), y.to(device)
@@ -132,8 +135,11 @@ for i in range(train_cfg.max_iters):
         
         if device == "cuda":
             torch.cuda.synchronize()
-        t1 = time.time()
-        tokens_per_sec = (train_loader.batch_size * train_loader.seq_len * grad_accum_steps) / (t1 - t0)
+
+        assert step_start is not None, "starting time must not be None"
+        step_time = time.time() - step_start
+        
+        tokens_per_sec = (train_loader.batch_size * train_loader.seq_len * grad_accum_steps) / step_time
         
         # Track metrics
         metrics.add_train_step(optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec)
