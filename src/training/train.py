@@ -3,11 +3,12 @@ import time
 from pathlib import Path
 from typing import cast, Any
 from omegaconf import OmegaConf
-from data.dataloader import LiteGPTDataLoader
-from model.model import LiteGPT
+
+from src.data.dataloader import LiteGPTDataLoader
+from src.model.model import LiteGPT
 from scheduler import scheduler
-from utils.logger import WandBLogger
-from utils.metrics import TrainingMetrics
+from src.utils.logger import WandBLogger
+from src.utils.metrics import TrainingMetrics
 from checkpointing import CheckpointManager
 
 train_cfg = OmegaConf.load("../../configs/train/LiteGPT-Small.yaml")
