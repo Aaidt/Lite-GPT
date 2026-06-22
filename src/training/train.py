@@ -49,9 +49,6 @@ if torch.cuda.is_available():
 train_loader = LiteGPTDataLoader(split="train")
 val_loader = LiteGPTDataLoader(split="val")
 
-
-torch.set_float32_matmul_precision("medium")
-
 model = LiteGPT()
 model.to(device)
 

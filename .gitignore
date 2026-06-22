@@ -1,4 +1,6 @@
 .env
+run.ipynb
+
 # Python
 __pycache__/
 *.pyc
