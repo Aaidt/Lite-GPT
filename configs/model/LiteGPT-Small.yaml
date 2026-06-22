@@ -3,7 +3,7 @@ n_vocab: 50257
 seq_len: 128
 
 n_layers: 4
-n_heads: 4
+n_head: 4
 d_model: 256
 
 dropout: 0.1

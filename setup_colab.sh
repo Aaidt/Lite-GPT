@@ -18,10 +18,13 @@ echo "Installing dependencies..."
 uv sync
 
 echo "Installing the shakespeare dataset..."
-cd src/data/ && uv run datasets.py
+python -m src.data.datasets
 
-echo "check installed dataset..."
-ls && cd ../..
+echo "Tokenizing the dataset..."
+python -m src.data.tokenizer
+
+echo "check installed dataset and tokens..."
+cd src/data/datasets/ && ls && cd ../..
 
 cat << EOF
 
