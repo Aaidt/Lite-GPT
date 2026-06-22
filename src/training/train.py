@@ -11,13 +11,13 @@ from src.utils.logger import WandBLogger
 from src.utils.metrics import TrainingMetrics
 from checkpointing import CheckpointManager
 
-train_cfg = OmegaConf.load("../../configs/train/LiteGPT-Small.yaml")
+train_cfg = OmegaConf.load("./configs/train/LiteGPT-Small.yaml")
 device = train_cfg.device
 
 # Create directories
-logs_dir = Path("../../logs")
-results_dir = Path("../../results")
-checkpoints_dir = Path("../../checkpoints")
+logs_dir = Path("./logs")
+results_dir = Path("./results")
+checkpoints_dir = Path("./checkpoints")
 logs_dir.mkdir(parents=True, exist_ok=True)
 results_dir.mkdir(parents=True, exist_ok=True)
 
