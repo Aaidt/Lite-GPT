@@ -2,10 +2,10 @@ dataset_name: shakespeare
 
 url: https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
 
-raw_file: ./datasets/shakespeare.txt
+raw_file: ./src/data/datasets/shakespeare.txt
 
-train_bin: ./datasets/tokens/train.bin
-val_bin: ./datasets/tokens/val.bin
+train_bin: ./src/data/datasets/tokens/train.bin
+val_bin: ./src/data/datasets/tokens/val.bin
 
 train_split: 0.9
 
