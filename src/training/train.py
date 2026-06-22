@@ -6,10 +6,10 @@ from omegaconf import OmegaConf
 
 from src.data.dataloader import LiteGPTDataLoader
 from src.model.model import LiteGPT
-from scheduler import scheduler
 from src.utils.logger import WandBLogger
 from src.utils.metrics import TrainingMetrics
-from checkpointing import CheckpointManager
+from .scheduler import scheduler
+from .checkpointing import CheckpointManager
 
 train_cfg = OmegaConf.load("./configs/train/LiteGPT-Small.yaml")
 device = train_cfg.device
