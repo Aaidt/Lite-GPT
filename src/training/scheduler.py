@@ -1,7 +1,7 @@
 import math
 from omegaconf import OmegaConf
 
-train_cfg = OmegaConf.load("./configs/train/LiteGPT-Small.yaml")
+train_cfg = OmegaConf.load("./configs/train/LiteGPT-50M.yaml")
 
 max_lr = train_cfg.max_lr
 min_lr = max_lr * 0.1
