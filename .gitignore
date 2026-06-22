@@ -1,6 +1,7 @@
 .env
 run.ipynb
-
+LiteGPT-16M_run.zip
+LiteGPT-16M_run*/
 # Python
 __pycache__/
 *.pyc

@@ -10,7 +10,6 @@ from safetensors.torch import (
     load_model,
 )
 
-
 class CheckpointManager:
     """Manage model checkpoints."""
 
@@ -49,26 +48,26 @@ class CheckpointManager:
         }
         torch.save(training_state, ckpt_dir / "training_state.pt")
 
+        metadata = {
+            "step": step,
+            "metrics": {
+                k: float(v) if isinstance(v, (int, float))
+                else str(v)
+                for k, v in metrics.items()
+            },
+        }
         # Save best checkpoint (overwrites previous best)
         if is_best:
             best_dir = self.checkpoint_dir / "best"
             best_dir.mkdir(parents=True, exist_ok=True)
             save_model(model, str(best_dir / "model.safetensors"))
             torch.save(training_state, best_dir / "training_state.pt")
+            with open(best_dir / "metadata.json", "w") as f:
+                json.dump(metadata, f, indent=2)
 
         # Save metadata
         with open(ckpt_dir / "metadata.json", "w") as f:
-            json.dump(
-                {
-                    "step": step,
-                    "metrics": {
-                        k: float(v) if isinstance(v, (int, float)) else str(v)
-                        for k, v in metrics.items()
-                    },
-                },
-                f,
-                indent=2,
-            )
+            json.dump(metadata, f, indent=2)
 
     def load(
         self,

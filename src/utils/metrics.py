@@ -11,6 +11,7 @@ class TrainingMetrics:
     tokens_per_sec: List[float] = field(default_factory=list)
     val_losses: List[float] = field(default_factory=list)
     steps: List[int] = field(default_factory=list)
+    perplexity: List[float] = field(default_factory=list)
     
     def add_train_step(
         self,
@@ -31,6 +32,10 @@ class TrainingMetrics:
         """Add validation loss."""
         self.val_losses.append(val_loss)
     
+    def add_perplexity(self, perplexity: float):
+        """Add perplexity."""
+        self.perplexity.append(perplexity)
+    
     def get_latest_metrics(self) -> Dict:
         """Get the latest metrics as a dictionary."""
         metrics = {
@@ -38,6 +43,7 @@ class TrainingMetrics:
             "learning_rate": self.learning_rates[-1] if self.learning_rates else 0.0,
             "grad_norm": self.grad_norms[-1] if self.grad_norms else 0.0,
             "tokens_per_sec": self.tokens_per_sec[-1] if self.tokens_per_sec else 0.0,
+            "perplexity": self.perplexity[-1] if self.perplexity else 0.0,
         }
         if self.val_losses:
             metrics["val_loss"] = self.val_losses[-1]

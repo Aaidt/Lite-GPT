@@ -42,4 +42,4 @@ case "$choice" in
     *)
         echo "Setup complete. Training not started."
         ;;
-esac
+esac 

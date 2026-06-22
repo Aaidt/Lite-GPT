@@ -8,9 +8,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from model.model import LiteGPT
-from data.dataloader import LiteGPTDataLoader
-from perplexity import compute_perplexity
+from src.model.model import LiteGPT
+from src.data.dataloader import LiteGPTDataLoader
+from safetensors.torch import load_model
 
 
 def benchmark_throughput(
@@ -113,38 +113,41 @@ def benchmark_latency(
 
 def benchmark_memory(
     model: torch.nn.Module,
+    dataloader: LiteGPTDataLoader,
     device: str,
 ) -> dict:
-    """Benchmark model memory usage.
-    
-    Args:
-        model: Model to benchmark
-        device: Device to use
-        
-    Returns:
-        Dictionary with memory metrics
-    """
-    if device == "cuda":
-        torch.cuda.reset_peak_memory_stats()
-        torch.cuda.synchronize()
-        
-        # Allocate model
-        _ = model
-        
-        torch.cuda.synchronize()
-        allocated = torch.cuda.memory_allocated() / (1024 ** 3)  # Convert to GB
-        reserved = torch.cuda.memory_reserved() / (1024 ** 3)
-        
-        return {
-            "allocated_gb": allocated,
-            "reserved_gb": reserved,
-        }
-    else:
+    """Benchmark GPU memory usage during inference."""
+
+    if device != "cuda":
         return {
             "allocated_gb": "N/A",
             "reserved_gb": "N/A",
+            "peak_allocated_gb": "N/A",
         }
 
+    model.eval()
+
+    x, y = dataloader.get_batch()
+    x, y = x.to(device), y.to(device)
+
+    torch.cuda.empty_cache()
+    torch.cuda.reset_peak_memory_stats()
+    torch.cuda.synchronize()
+
+    with torch.no_grad():
+        model(x, y)
+
+    torch.cuda.synchronize()
+
+    allocated = torch.cuda.memory_allocated() / (1024**3)
+    reserved = torch.cuda.memory_reserved() / (1024**3)
+    peak_allocated = torch.cuda.max_memory_allocated() / (1024**3)
+
+    return {
+        "allocated_gb": allocated,
+        "reserved_gb": reserved,
+        "peak_allocated_gb": peak_allocated,
+    }
 
 if __name__ == "__main__":
     import argparse
@@ -153,19 +156,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         type=str,
-        default="../../configs/train/LiteGPT-Small.yaml",
+        default="./configs/train/LiteGPT-Small.yaml",
         help="Path to training config",
     )
     parser.add_argument(
         "--checkpoint",
         type=str,
-        default="../../checkpoints/checkpoint_best.pt",
+        default="./checkpoints/best",
         help="Path to model checkpoint",
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="../../results/benchmark.json",
+        default="./results/benchmark.json",
         help="Output file for benchmark results",
     )
     
@@ -180,12 +183,26 @@ if __name__ == "__main__":
     model = LiteGPT()
     model.to(device)
     
-    # Load checkpoint
-    if Path(args.checkpoint).exists():
-        checkpoint = torch.load(args.checkpoint)
-        model.load_state_dict(checkpoint["model_state_dict"])
-        print(f"Loaded checkpoint from {args.checkpoint}")
+    # load checkpoint
+    checkpoint_dir = Path(args.checkpoint)
+    if checkpoint_dir.exists():
+        load_model(
+            model,
+            str(checkpoint_dir / "model.safetensors")
+        )
     
+        training_state = torch.load(
+            checkpoint_dir / "training_state.pt",
+            weights_only=True,
+        )
+    
+        print(
+            f"Loaded checkpoint from step "
+            f"{training_state['step']}"
+        )
+    else:
+        print(f"Warning: Checkpoint not found at {args.checkpoint}")
+
     # Load data
     dataloader = LiteGPTDataLoader(split="val")
     
@@ -193,23 +210,19 @@ if __name__ == "__main__":
     print("\nRunning benchmarks...")
     
     print("- Memory benchmarking...")
-    memory_metrics = benchmark_memory(model, device)
+    memory_metrics = benchmark_memory(model, dataloader, device)
     
     print("- Latency benchmarking...")
     latency_metrics = benchmark_latency(model, dataloader, device, num_samples=100)
     
     print("- Throughput benchmarking...")
     throughput_metrics = benchmark_throughput(model, dataloader, device, num_batches=100)
-    
-    print("- Perplexity computation...")
-    perplexity = compute_perplexity(model, dataloader, device, num_batches=100)
-    
+     
     # Combine all metrics
     results = {
         "memory": memory_metrics,
         "latency": latency_metrics,
         "throughput": throughput_metrics,
-        "perplexity": perplexity,
         "config": OmegaConf.to_container(config, resolve=True),
     }
     
@@ -227,6 +240,5 @@ if __name__ == "__main__":
     print(f"Latency (Median): {latency_metrics['latency_median_ms']:.2f} ms")
     print(f"Latency (P95): {latency_metrics['latency_p95_ms']:.2f} ms")
     print(f"Throughput: {throughput_metrics['throughput_tokens_per_sec']:.0f} tokens/sec")
-    print(f"Perplexity: {perplexity:.2f}")
     print("=" * 80)
     print(f"Results saved to {args.output}")

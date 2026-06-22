@@ -9,11 +9,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from model.model import LiteGPT
+from src.model.model import LiteGPT
+from safetensors.torch import load_model
 
-cfg = OmegaConf.load(
-    Path(__file__).resolve().parent.parent / "configs/data/shakespeare.yaml"
-)
+cfg = OmegaConf.load("./configs/data/shakespeare.yaml")
 
 encoder = tiktoken.get_encoding(cfg.tokenizer)
 assert encoder.decode(encoder.encode("Hello world")) == "Hello world", (
@@ -78,7 +77,7 @@ def generate(
                 break
 
             generated_tokens.append(next_token.item())
-            tokens = torch.cat([tokens, next_token.unsqueeze(0).unsqueeze(0)], dim=1)
+            tokens = torch.cat([tokens, next_token.view(1, -1)], dim=1)
 
     # Decode generated tokens
     generated_text = tokenizer.decode(generated_tokens)
@@ -92,13 +91,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         type=str,
-        default="../../configs/train/LiteGPT-Small.yaml",
+        default="./configs/train/LiteGPT-Small.yaml",
         help="Path to training config",
     )
     parser.add_argument(
         "--checkpoint",
         type=str,
-        default="../../checkpoints/best",
+        default="./checkpoints/best",
         help="Path to model checkpoint (dir, .safetensors, or .pt)",
     )
     parser.add_argument(
@@ -128,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output",
         type=str,
-        default="../../results/generated_text.txt",
+        default="./results/generated_text.txt",
         help="Output file for generated text",
     )
 
@@ -142,22 +141,32 @@ if __name__ == "__main__":
     model = LiteGPT()
     model.to(device)
 
-    # Load checkpoint (supports .safetensors, .pt, and checkpoint directories)
-    ckpt_path = Path(args.checkpoint)
-    if ckpt_path.exists():
-        if ckpt_path.suffix == ".safetensors":
-            from safetensors.torch import load_file as safetensors_load
+    # load checkpoint
+    checkpoint_dir = Path(args.checkpoint)
 
-            state_dict = safetensors_load(str(ckpt_path))
-        elif ckpt_path.is_dir():
-            from safetensors.torch import load_file as safetensors_load
+    if checkpoint_dir.is_dir():
+        if (checkpoint_dir / "model.safetensors").exists():
+            load_model(
+                model,
+                str(checkpoint_dir / "model.safetensors")
+            )
+            print(f"Loaded model weights from {checkpoint_dir / 'model.safetensors'}")
+            training_state = torch.load(
+                checkpoint_dir / "training_state.pt",
+                weights_only=True,
+            )
+            print(
+                f"Loaded checkpoint from step "
+                f"{training_state['step']}"
+            )
 
-            state_dict = safetensors_load(str(ckpt_path / "model.safetensors"))
-        else:
-            checkpoint = torch.load(ckpt_path, weights_only=True)
-            state_dict = checkpoint["model_state_dict"]
-        model.load_state_dict(state_dict)
-        print(f"Loaded checkpoint from {args.checkpoint}")
+    elif checkpoint_dir.suffix == ".safetensors":
+        load_model(
+            model,
+            str(checkpoint_dir)
+        )
+        print(f"Loaded model weights from {checkpoint_dir}")
+
     else:
         print(f"Warning: Checkpoint not found at {args.checkpoint}")
 
@@ -171,12 +180,25 @@ if __name__ == "__main__":
         args.prompt,
         tokenizer,
         max_new_tokens=args.max_tokens,
-        temperature=args.temperature,
+        temperature=max(args.temperature, 1e-5),  # Avoid zero temperature
         top_k=args.top_k,
         device=device,
     )
 
     full_text = args.prompt + generated
+
+    metadata_file = checkpoint_dir / "metadata.json"
+
+    if metadata_file.exists():
+        import json
+        with open(metadata_file) as f:
+            metadata = json.load(f)
+
+        print(
+            f"Step: {metadata['step']} | "
+            f"Val Loss: {metadata['metrics']['val_loss']:.4f}"
+        )
+        
     print("\n" + "=" * 80)
     print("Generated Text:")
     print("=" * 80)

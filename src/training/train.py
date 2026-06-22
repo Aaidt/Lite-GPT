@@ -1,4 +1,5 @@
 import torch
+import math
 import time
 from pathlib import Path
 from typing import cast, Any
@@ -77,14 +78,39 @@ def estimate_loss():
         
     model.train()
     val_loss = sum(losses) / len(losses)
+    perplexity = math.exp(min(val_loss, 20)) # Cap loss to prevent overflow in exp
     metrics.add_val_loss(val_loss)
-    return val_loss
+    metrics.add_perplexity(perplexity)
+    return val_loss, perplexity
 
 
 print("=" * 80)
 print("Training Configuration")
 print("=" * 80)
 print(OmegaConf.to_yaml(train_cfg))
+print("=" * 80)
+print("=" * 80)
+
+total_params = sum(p.numel() for p in model.parameters())
+trainable_params = sum(
+    p.numel() for p in model.parameters() if p.requires_grad
+)
+print(f"Total params:     {total_params:,}")
+print(f"Trainable params: {trainable_params:,}")
+print(f"Frozen params:    {total_params - trainable_params:,}")
+print("=" * 80)
+
+for name, module in model.named_modules():
+    total = sum(p.numel()for p in module.parameters(recurse=False))
+
+    trainable = sum(p.numel() for p in module.parameters(recurse=False) if p.requires_grad)
+
+    if total > 0:
+        print(
+            f"{name:30} "
+            f"total={total:>10,} "
+            f"trainable={trainable:>10,}"
+        )
 print("=" * 80)
 
 model.train()
@@ -146,7 +172,7 @@ for i in range(train_cfg.max_iters):
         
         # Validation and logging
         if (optimizer_step % train_cfg.eval_interval) == 0:
-            val_loss = estimate_loss()
+            val_loss, perplexity = estimate_loss()
             
             log_dict = {
                 "train/loss": avg_loss,
@@ -154,6 +180,7 @@ for i in range(train_cfg.max_iters):
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
                 "val/loss": val_loss,
+                "val/perplexity": perplexity,
                 "train/step": optimizer_step,
             }
             
@@ -170,8 +197,11 @@ for i in range(train_cfg.max_iters):
                 model=model,
                 optimizer=optimizer,
                 metrics={
+                    "total_params": total_params,
+                    "trainable_params": trainable_params,
                     "train_loss": avg_loss,
                     "val_loss": val_loss,
+                    "val_perplexity": perplexity,
                     "learning_rate": lr,
                     "grad_norm": norm.item(),
                     "tokens_per_sec": tokens_per_sec,
@@ -186,6 +216,7 @@ for i in range(train_cfg.max_iters):
                 f"[Step {i:5d}] "
                 f"train_loss: {avg_loss:.4f} | "
                 f"val_loss: {val_loss:.4f} | "
+                f"val_perplexity: {perplexity:.2f} | "
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
                 f"tok/s: {tokens_per_sec:.0f}"
