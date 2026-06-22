@@ -1,5 +1,6 @@
 import torch
 import time
+from pathlib import Path
 from typing import cast, Any
 from omegaconf import OmegaConf
 from data.dataloader import LiteGPTDataLoader
@@ -7,9 +8,17 @@ from model.model import LiteGPT
 from scheduler import scheduler
 from utils.logger import WandBLogger
 from utils.metrics import TrainingMetrics
+from checkpointing import CheckpointManager
 
 train_cfg = OmegaConf.load("../../configs/train/LiteGPT-Small.yaml")
 device = train_cfg.device
+
+# Create directories
+logs_dir = Path("../../logs")
+results_dir = Path("../../results")
+checkpoints_dir = Path("../../checkpoints")
+logs_dir.mkdir(parents=True, exist_ok=True)
+results_dir.mkdir(parents=True, exist_ok=True)
 
 # Initialize wandb logger
 config = cast(
@@ -24,8 +33,14 @@ logger = WandBLogger(
 )
 logger.start()
 
+# Initialize checkpoint manager
+checkpoint_manager = CheckpointManager(checkpoint_dir=str(checkpoints_dir))
+
 # Initialize metrics tracker
 metrics = TrainingMetrics()
+
+# Store best validation loss
+best_val_loss = float("inf")
 
 torch.manual_seed(train_cfg.seed)
 if torch.cuda.is_available():
@@ -33,25 +48,6 @@ if torch.cuda.is_available():
 
 train_loader = LiteGPTDataLoader(split="train")
 val_loader = LiteGPTDataLoader(split="val")
-
-
-@torch.no_grad()
-def estimate_loss():
-    """Estimate validation loss."""
-    model.eval()
-    losses = []
-
-    for i in range(train_cfg.eval_iters):
-        x, y = val_loader.get_batch()
-        x, y = x.to(device), y.to(device)
-
-        _, loss = model(x, y)
-        losses.append(loss.item())
-        
-    model.train()
-    val_loss = sum(losses) / len(losses)
-    metrics.add_val_loss(val_loss)
-    return val_loss
 
 
 torch.set_float32_matmul_precision("medium")
@@ -68,6 +64,25 @@ optimizer = torch.optim.AdamW(
 
 compiled_model = torch.compile(model)
 
+@torch.no_grad()
+def estimate_loss():
+    """Estimate validation loss."""
+    model.eval()
+    losses = []
+
+    for _ in range(train_cfg.eval_iters):
+        x, y = val_loader.get_batch()
+        x, y = x.to(device), y.to(device)
+
+        _, loss = compiled_model(x, y)
+        losses.append(loss.item())
+        
+    model.train()
+    val_loss = sum(losses) / len(losses)
+    metrics.add_val_loss(val_loss)
+    return val_loss
+
+
 print("=" * 80)
 print("Training Configuration")
 print("=" * 80)
@@ -79,7 +94,12 @@ accumulated_loss = 0.0
 grad_accum_steps = train_cfg.grad_accum_steps
 
 for i in range(train_cfg.max_iters):
-    t0 = time.time()
+    assert train_cfg.max_iters % grad_accum_steps == 0, "grad_accum_steps should completely divide max_iters otherwise grads at the end will be ignored"
+    t0: float = 0.0
+    if i % grad_accum_steps == 0:
+        if device == "cuda":
+            torch.cuda.synchronize()
+        t0 = time.time()
 
     x, y = train_loader.get_batch()
     x, y = x.to(device), y.to(device)
@@ -100,7 +120,8 @@ for i in range(train_cfg.max_iters):
             max_norm=train_cfg.grad_clip
         )
         
-        lr = scheduler(i)
+        optimizer_step = (i + 1) // grad_accum_steps
+        lr = scheduler(optimizer_step)
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
         
@@ -111,14 +132,16 @@ for i in range(train_cfg.max_iters):
         avg_loss = accumulated_loss / grad_accum_steps
         accumulated_loss = 0.0
         
+        if device == "cuda":
+            torch.cuda.synchronize()
         t1 = time.time()
         tokens_per_sec = (train_loader.batch_size * train_loader.seq_len * grad_accum_steps) / (t1 - t0)
         
         # Track metrics
-        metrics.add_train_step(i, avg_loss, lr, norm.item(), tokens_per_sec)
+        metrics.add_train_step(optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec)
         
         # Validation and logging
-        if (i % train_cfg.eval_interval) == 0:
+        if (optimizer_step % train_cfg.eval_interval) == 0:
             val_loss = estimate_loss()
             
             log_dict = {
@@ -127,11 +150,33 @@ for i in range(train_cfg.max_iters):
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
                 "val/loss": val_loss,
-                "train/step": i,
+                "train/step": optimizer_step,
             }
             
             # Log to wandb
-            logger.log(log_dict, step=i)
+            logger.log(log_dict, step=optimizer_step)
+            
+            # Save checkpoint
+            is_best = val_loss < best_val_loss
+            if is_best:
+                best_val_loss = val_loss
+            
+            checkpoint_manager.save(
+                step=optimizer_step,
+                model=model,
+                optimizer=optimizer,
+                metrics={
+                    "train_loss": avg_loss,
+                    "val_loss": val_loss,
+                    "learning_rate": lr,
+                    "grad_norm": norm.item(),
+                    "tokens_per_sec": tokens_per_sec,
+                },
+                is_best=is_best,
+            )
+            
+            # Cleanup old checkpoints
+            checkpoint_manager.delete_old_checkpoints(keep_last=3)
             
             print(
                 f"[Step {i:5d}] "
@@ -140,6 +185,7 @@ for i in range(train_cfg.max_iters):
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
                 f"tok/s: {tokens_per_sec:.0f}"
+                + (" [BEST]" if is_best else "")
             )
         else:
             log_dict = {
@@ -147,19 +193,46 @@ for i in range(train_cfg.max_iters):
                 "train/learning_rate": lr,
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
-                "train/step": i,
+                "train/step": optimizer_step,
             }
-            logger.log(log_dict, step=i)
+            logger.log(log_dict, step=optimizer_step)
             
             print(
                 f"[Step {i:5d}] "
                 f"train_loss: {avg_loss:.4f} | "
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
-                f"tok/s: {tokens_per_sec:.0f}"
+                f"tok/s: {tokens_per_sec:.0f}",
+                f"train/step: {optimizer_step}"
             )
 
 print("=" * 80)
 print("Training Complete")
 print("=" * 80)
 logger.finish()
+
+# Save final results
+import json
+results_file = results_dir / "training_results.json"
+with open(results_file, "w") as f:
+    json.dump({
+        "final_metrics": metrics.get_latest_metrics(),
+        "best_val_loss": best_val_loss,
+        "total_optimizer_steps": train_cfg.max_iters // grad_accum_steps,
+        "config": config,
+    }, f, indent=2)
+
+# Save metrics to logs
+logs_file = logs_dir / "training_metrics.json"
+with open(logs_file, "w") as f:
+    json.dump({
+        "losses": metrics.losses,
+        "learning_rates": metrics.learning_rates,
+        "grad_norms": metrics.grad_norms,
+        "tokens_per_sec": metrics.tokens_per_sec,
+        "val_losses": metrics.val_losses,
+        "steps": metrics.steps,
+    }, f, indent=2)
+
+print(f"Results saved to: {results_file}")
+print(f"Metrics saved to: {logs_file}")

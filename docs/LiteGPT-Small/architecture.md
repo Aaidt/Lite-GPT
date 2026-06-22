@@ -62,8 +62,6 @@ Input Tokens [B, T]
             ▼
 ┌─────────────────────┐
 │      LM Head        │
-│  Weight Tied with   │
-│ Token Embeddings    │
 └─────────────────────┘
             │
             ▼
