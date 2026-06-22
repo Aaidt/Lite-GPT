@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "creating necessary folders needed..."
+mkdir checkpoints results logs
+
 echo "cloning repo..."
 git clone https://github.com/Aaidt/Lite-GPT.git
 
@@ -35,7 +38,7 @@ wandb.login(key="YOUR_API_KEY")
 
 Run training:
 
-uv run python -m src.training.train
+python -m src.training.train
 
 EOF
 

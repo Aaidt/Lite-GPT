@@ -6,8 +6,8 @@ import torch
 from pathlib import Path
 from typing import Optional, Dict, Any
 from safetensors.torch import (
-    save_file as safetensors_save,
-    load_file as safetensors_load,
+    save_model,
+    load_model,
 )
 
 
@@ -39,7 +39,7 @@ class CheckpointManager:
         ckpt_dir.mkdir(parents=True, exist_ok=True)
 
         # Save model weights as safetensors
-        safetensors_save(model.state_dict(), str(ckpt_dir / "model.safetensors"))
+        save_model(model, str(ckpt_dir / "model.safetensors"))
 
         # Save training state (optimizer, step, metrics) as torch
         training_state = {
@@ -53,7 +53,7 @@ class CheckpointManager:
         if is_best:
             best_dir = self.checkpoint_dir / "best"
             best_dir.mkdir(parents=True, exist_ok=True)
-            safetensors_save(model.state_dict(), str(best_dir / "model.safetensors"))
+            save_model(model, str(best_dir / "model.safetensors"))
             torch.save(training_state, best_dir / "training_state.pt")
 
         # Save metadata
@@ -113,8 +113,7 @@ class CheckpointManager:
             print(f"Warning: Model weights not found at {model_file}")
             return {}
 
-        state_dict = safetensors_load(str(model_file))
-        model.load_state_dict(state_dict)
+        load_model(model, str(model_file))
 
         if training_file.exists():
             training_state = torch.load(training_file, weights_only=True)
