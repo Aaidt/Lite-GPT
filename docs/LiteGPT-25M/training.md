@@ -6,15 +6,25 @@
 - Platform: Google Colab
 
 ## Hyperparameters
+| Parameter             | Value |
+| --------------------- | ----- |
+| Batch Size            | 16    |
+| Gradient Accumulation | 8     |
+| Effective Batch Size  | 128   |
+| Sequence Length       | 256   |
+| Learning Rate         | 3e-4  |
+| Min Learning Rate     | 3e-6  |
+| Weight Decay          | 0.1   |
+| Warmup Steps          | 1000  |
+| Max Steps             | 10000 |
 
-| Parameter | Value |
-|------------|---------|
-| Batch Size | 16 |
-| Sequence Length | 256 |
-| Learning Rate | 3e-4 |
-| Weight Decay | 0.1 |
-| Warmup Steps | 2000 |
-| Max Steps | 40000 |
+## Tokens Seen
+```text
+16 × 8 × 256 × 10000
+= 327,680,000 tokens
+
+≈328M tokens.
+```
 
 ## Optimizer
 
@@ -22,6 +32,13 @@ AdamW
 
 β1 = 0.9
 β2 = 0.95
+
+## Learning Rate Schedule
+
+Cosine Decay
+
+Warmup: 0 → 3e-4 (500 steps)
+Decay: 3e-4 → 3e-6 (9500 steps)
 
 ## Loss Function
 
@@ -41,6 +58,15 @@ Save:
 
 Frequency:
 - every N steps
+
+## Dataset mix
+
+| Dataset     | Weight |
+| ----------- | ------ |
+| FineWeb     | 60%    |
+| TinyStories | 30%    |
+| Code        | 10%    |
+
 
 ## Evaluation
 
@@ -72,6 +98,14 @@ Observations:
 Config:
 Results:
 Observations: -->
+
+## Expected range
+
+| Metric     | Good      |
+| ---------- | --------- |
+| Train Loss | 2.8 - 3.5 |
+| Val Loss   | 3.0 - 4.5 |
+| Perplexity | 20 - 90   |
 
 ## Final Results
 

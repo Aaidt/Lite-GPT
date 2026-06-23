@@ -157,7 +157,7 @@ if __name__ == "__main__":
         "--config",
         type=str,
         default="./configs/train/LiteGPT-25M.yaml",
-        help="Path to training config",
+        help="Path to training config", 
     )
     parser.add_argument(
         "--checkpoint",
