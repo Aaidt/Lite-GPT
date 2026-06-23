@@ -1,4 +1,4 @@
-dataset_name: fineweb + codeparrot + Tiny Stories
+dataset_name: fineweb + the stack smol + Tiny Stories
 
 raw_file: ./src/litegpt_25M/data/datasets/litegpt_25M.txt
 

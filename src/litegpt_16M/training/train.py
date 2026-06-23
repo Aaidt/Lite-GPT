@@ -60,7 +60,8 @@ optimizer = torch.optim.AdamW(
     model.parameters(),
     lr=train_cfg.max_lr,
     betas=(train_cfg.beta1, train_cfg.beta2),
-    eps=train_cfg.eps
+    eps=train_cfg.eps,
+    fused=True
 )
 
 compiled_model = torch.compile(model)

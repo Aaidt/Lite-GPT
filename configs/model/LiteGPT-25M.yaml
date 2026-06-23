@@ -3,8 +3,10 @@ n_vocab: 50257
 seq_len: 512
 
 n_layers: 8
-n_head: 8 
+n_heads: 8 
+n_kv_heads: 4
 d_model: 320
+d_hidden: 896
 
 dropout: 0.0
 bias: false
