@@ -14,6 +14,8 @@ from .checkpointing import CheckpointManager
 
 train_cfg = OmegaConf.load("./configs/train/LiteGPT-50M.yaml")
 device = train_cfg.device
+max_steps = train_cfg.max_iters // train_cfg.grad_accum_steps
+warmup_steps = train_cfg.warmup_iters // train_cfg.grad_accum_steps
 
 # Create directories
 logs_dir = Path("./content/drive/MyDrive/LiteGPT/logs")
@@ -220,6 +222,7 @@ for i in range(train_cfg.max_iters):
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
                 f"tok/s: {tokens_per_sec:.0f}"
+                f"decay_ratio={(optimizer_step - warmup_steps) / (max_steps - warmup_steps):.3f}"
                 + (" [BEST]" if is_best else "")
             )
         else:

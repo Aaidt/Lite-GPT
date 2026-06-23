@@ -57,9 +57,3 @@ train.bin
 val.bin
 
 dtype = uint16
-
-## Future Datasets
-
-- FineWeb
-- TinyStories
-- OpenWebText

@@ -4,10 +4,10 @@ from omegaconf import OmegaConf
 train_cfg = OmegaConf.load("./configs/train/LiteGPT-50M.yaml")
 
 max_lr = train_cfg.max_lr
-min_lr = max_lr * 0.1
+min_lr = max_lr * 0.01
 
-max_steps = train_cfg.max_iters
-warmup_steps = train_cfg.warmup_iters
+max_steps = train_cfg.max_iters // train_cfg.grad_accum_steps
+warmup_steps = train_cfg.warmup_iters // train_cfg.grad_accum_steps
 
 def scheduler(it: int) -> float:
     if it < warmup_steps:

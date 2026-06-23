@@ -9,12 +9,12 @@
 
 | Parameter | Value |
 |------------|---------|
-| Batch Size | |
-| Sequence Length | |
-| Learning Rate | |
-| Weight Decay | |
-| Warmup Steps | |
-| Max Steps | |
+| Batch Size | 16 |
+| Sequence Length | 256 |
+| Learning Rate | 3e-4 |
+| Weight Decay | 0.1 |
+| Warmup Steps | 2000 |
+| Max Steps | 40000 |
 
 ## Optimizer
 
@@ -22,12 +22,6 @@ AdamW
 
 β1 = 0.9
 β2 = 0.95
-
-## Learning Rate Schedule
-
-Warmup
-    ↓
-Cosine Decay
 
 ## Loss Function
 
@@ -61,11 +55,11 @@ Perplexity = exp(loss)
 
 | Parameter | Value |
 |------------|---------|
-| Temperature | |
-| Top-k | |
-| Max Tokens | |
+| Temperature | 1.0 |
+| Top-k | None |
+| Max Tokens | 100 |
 
-## Experiments
+<!-- ## Experiments
 
 ### Experiment 1
 
@@ -77,12 +71,12 @@ Observations:
 
 Config:
 Results:
-Observations:
+Observations: -->
 
 ## Final Results
 
 | Metric | Value |
 |---------|---------|
-| Train Loss | |
-| Val Loss | |
-| Perplexity | |
+| Train Loss | 2.878491520881653 |
+| Val Loss | 5.985600624084473 |
+| Perplexity | 397.6612944866264 |
