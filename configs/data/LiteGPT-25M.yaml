@@ -1,0 +1,12 @@
+dataset_name: fineweb + codeparrot + Tiny Stories
+
+raw_file: ./src/litegpt_25M/data/datasets/litegpt_25M.txt
+
+train_bin: ./src/litegpt_25M/data/datasets/tokens/train.bin
+val_bin: ./src/litegpt_25M/data/datasets/tokens/val.bin
+
+train_split: 0.9
+
+tokenizer: gpt2
+
+seed: 42
