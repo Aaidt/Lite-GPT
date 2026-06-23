@@ -9,10 +9,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.litegpt_16M.model.model import LiteGPT
+from src.litegpt_25M.model.model import LiteGPT
 from safetensors.torch import load_model
 
-cfg = OmegaConf.load("./configs/data/shakespeare.yaml")
+cfg = OmegaConf.load("./configs/data/LiteGPT-25M.yaml")
 
 encoder = tiktoken.get_encoding(cfg.tokenizer)
 assert encoder.decode(encoder.encode("Hello world")) == "Hello world", (
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         type=str,
-        default="./configs/train/LiteGPT-16M.yaml",
+        default="./configs/train/LiteGPT-25M.yaml",
         help="Path to training config",
     )
     parser.add_argument(
