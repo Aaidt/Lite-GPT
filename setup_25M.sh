@@ -19,7 +19,7 @@ uv sync
 echo "Installing the 500M token dataset..."
 python -m src.litegpt_25M.data.datasets
 
-echo "check installed token files..."
+echo "check installed token files   ..."
 ls src/litegpt_25M/data/datasets/tokens 
 
 echo ""
