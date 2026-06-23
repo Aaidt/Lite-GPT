@@ -2,6 +2,8 @@
 run.ipynb
 LiteGPT-16M_run.zip
 LiteGPT-16M_run*/
+benchmark*.json
+generated_text*.txt
 # Python
 __pycache__/
 *.pyc

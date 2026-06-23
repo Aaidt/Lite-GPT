@@ -32,7 +32,7 @@ config = cast(
 )
 logger = WandBLogger(
     project="Lite-GPT",
-    entity="aadit_123-aadit",
+    entity=train_cfg.entity,
     config=config,
     name="LiteGPT-25M",
 )

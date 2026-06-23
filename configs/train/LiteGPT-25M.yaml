@@ -20,4 +20,6 @@ device: cuda
 
 seed: 42
 
+entity: aadit_123-aadit
+
 patience: 10

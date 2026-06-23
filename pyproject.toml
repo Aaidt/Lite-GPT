@@ -12,6 +12,7 @@ dependencies = [
     "safetensors>=0.8.0",
     "tiktoken>=0.13.0",
     "tqdm>=4.66.0",
+    "unsloth>=2025.11.1",
     "wandb>=0.27.2",
 ]
 
