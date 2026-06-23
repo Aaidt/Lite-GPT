@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import cast, Any
 from omegaconf import OmegaConf
 
-from src.data.dataloader import LiteGPTDataLoader
-from src.model.model import LiteGPT
-from src.utils.logger import WandBLogger
-from src.utils.metrics import TrainingMetrics
+from src.litegpt_16M.data.dataloader import LiteGPTDataLoader
+from src.litegpt_16M.model.model import LiteGPT
+from src.litegpt_16M.utils.logger import WandBLogger
+from src.litegpt_16M.utils.metrics import TrainingMetrics
 from .scheduler import scheduler
 from .checkpointing import CheckpointManager
 

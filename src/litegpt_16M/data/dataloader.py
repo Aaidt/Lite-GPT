@@ -3,8 +3,8 @@ from typing import Literal, Tuple
 from omegaconf import OmegaConf
 import numpy as np
 
-model_cfg = OmegaConf.load("./configs/model/LiteGPT-50M.yaml")
-train_cfg = OmegaConf.load("./configs/train/LiteGPT-50M.yaml")
+model_cfg = OmegaConf.load("./configs/model/LiteGPT-16M.yaml")
+train_cfg = OmegaConf.load("./configs/train/LiteGPT-16M.yaml")
 data_cfg = OmegaConf.load("./configs/data/shakespeare.yaml")
 
 class LiteGPTDataLoader:

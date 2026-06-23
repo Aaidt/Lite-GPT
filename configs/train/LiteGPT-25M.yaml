@@ -1,10 +1,10 @@
-batch_size: 32
-grad_accum_steps: 4
+batch_size: 16
+grad_accum_steps: 8
 
-max_iters: 50000
-warmup_iters: 4000
+max_iters: 10000
+warmup_iters: 1000
 
-max_lr: 6e-4
+max_lr: 3e-4
 weight_decay: 0.1
 
 beta1: 0.9

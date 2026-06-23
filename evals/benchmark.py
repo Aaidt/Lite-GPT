@@ -8,8 +8,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.model.model import LiteGPT
-from src.data.dataloader import LiteGPTDataLoader
+from src.litegpt_16M.model.model import LiteGPT
+from src.litegpt_16M.data.dataloader import LiteGPTDataLoader
 from safetensors.torch import load_model
 
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         type=str,
-        default="./configs/train/LiteGPT-Small.yaml",
+        default="./configs/train/LiteGPT-16M.yaml",
         help="Path to training config",
     )
     parser.add_argument(

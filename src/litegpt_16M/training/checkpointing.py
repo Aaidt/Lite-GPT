@@ -13,7 +13,7 @@ from safetensors.torch import (
 class CheckpointManager:
     """Manage model checkpoints."""
 
-    def __init__(self, checkpoint_dir: str = "/content/drive/MyDrive/LiteGPT/checkpoints"):
+    def __init__(self, checkpoint_dir: str = "./content/drive/MyDrive/LiteGPT/checkpoints"):
         self.checkpoint_dir = Path(checkpoint_dir)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
