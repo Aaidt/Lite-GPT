@@ -25,7 +25,7 @@ global_pbar = tqdm(
 streaming = True
 if Path(tokenizer_path).exists():
     print(
-        f"Tokenizer already exists at {tokenizer_path}. Skipping corpus creation and training."
+        f"Tokenizer already exists. Skipping corpus creation and training."
     )
     streaming = False
 elif Path(corpus_file).exists() and Path(corpus_file).stat().st_size > 0:

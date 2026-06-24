@@ -1,11 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "cloning repo..."
-rm -rf Lite-GPT
-git clone https://github.com/Aaidt/Lite-GPT.git
-
-cd Lite-GPT
+if [ -d "Lite-GPT" ] && [ -d "Lite-GPT/.git" ]; then
+    echo "repo exists, pulling latest changes..."
+    cd Lite-GPT
+    git pull
+else
+    echo "cloning repo..."
+    rm -rf Lite-GPT
+    git clone https://github.com/Aaidt/Lite-GPT.git
+    cd Lite-GPT
+fi
 
 echo "creating necessary folders needed..."
 mkdir -p checkpoints results logs
