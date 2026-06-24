@@ -2,6 +2,9 @@ dataset_name: fineweb + the stack smol + Tiny Stories
 
 raw_file: ./src/litegpt_25M/data/datasets/litegpt_25M.txt
 
+corpus_file: ./src/litegpt_25M/data/datasets/corpus.txt
+tokenizer_path: ./src/litegpt_25M/data/tokenizer.json
+
 train_bin: ./src/litegpt_25M/data/datasets/tokens/train.bin
 val_bin: ./src/litegpt_25M/data/datasets/tokens/val.bin
 
