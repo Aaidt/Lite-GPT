@@ -3,7 +3,7 @@
 import torch
 from pathlib import Path
 from omegaconf import OmegaConf
-import tiktoken
+from tokenizers import Tokenizer
 import numpy as np
 import sys
 
@@ -14,18 +14,19 @@ from safetensors.torch import load_model
 
 cfg = OmegaConf.load("./configs/data/LiteGPT-25M.yaml")
 
-encoder = tiktoken.get_encoding(cfg.tokenizer)
-assert encoder.decode(encoder.encode("Hello world")) == "Hello world", (
+tokenizer = Tokenizer.from_file(str(Path(cfg.tokenizer_path)))
+assert tokenizer.decode(tokenizer.encode("Hello world").ids) == "Hello world", (
     "Tokenizer round-trip failed"
 )
 
-assert encoder.n_vocab <= np.iinfo(np.uint16).max, "n_vocab is more than uint16"
+assert tokenizer.get_vocab_size() <= np.iinfo(np.uint16).max, "n_vocab is more than uint16"
+EOT_ID = tokenizer.token_to_id("<|endoftext|>")
 
 
 def generate(
     model: torch.nn.Module,
     prompt: str,
-    tokenizer=encoder,
+    tokenizer=tokenizer,
     max_new_tokens: int = 100,
     temperature: float = 1.0,
     top_k: int | None = None,
@@ -48,7 +49,7 @@ def generate(
     model.eval()
 
     # Encode prompt
-    tokens = torch.tensor(tokenizer.encode(prompt), dtype=torch.long, device=device)
+    tokens = torch.tensor(tokenizer.encode(prompt).ids, dtype=torch.long, device=device)
     tokens = tokens.unsqueeze(0)  # Add batch dimension
 
     generated_tokens = []
@@ -73,7 +74,7 @@ def generate(
             next_token = torch.multinomial(probs, num_samples=1)
 
             # Check for end of sequence
-            if next_token.item() == tokenizer.eot_token:
+            if next_token.item() == EOT_ID:
                 break
 
             generated_tokens.append(next_token.item())
@@ -169,9 +170,6 @@ if __name__ == "__main__":
 
     else:
         print(f"Warning: Checkpoint not found at {args.checkpoint}")
-
-    # Use the global tokenizer encoder
-    tokenizer = encoder
 
     # Generate text
     print(f"Generating text from prompt: '{args.prompt}'")
