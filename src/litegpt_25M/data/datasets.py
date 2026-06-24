@@ -71,9 +71,7 @@ if needs_streaming:
 
     # Stream fineweb dataset
     print(f"\nStreaming fineweb (target: {fineweb_target:,} tokens)...")
-    fineweb = load_dataset(
-        "HuggingFaceFW/fineweb", name="sample-10BT", split="train", streaming=True
-    )
+    fineweb = load_dataset("HuggingFaceFW/fineweb", name="sample-10BT", split="train", streaming=True)
 
     fineweb_tokens = 0
     pbar = tqdm(total=fineweb_target, desc="fineweb", unit="tok", unit_scale=True)
@@ -152,10 +150,10 @@ if needs_streaming:
 train = np.memmap(train_file, dtype=np.uint16, mode="r")
 val = np.memmap(val_file, dtype=np.uint16, mode="r")
 
-print(len(train))
-print(len(val))
+print(f"len of training file: {len(train)}")
+print(f"len of val file: {len(val)}")
 print("=" * 10)
-print(train.min())
-print(train.max())
+print("min from train: ", train.min())
+print("max from train: ", train.max())
 
 print("\nDone!")

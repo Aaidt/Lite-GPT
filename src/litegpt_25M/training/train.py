@@ -26,10 +26,7 @@ logs_dir.mkdir(parents=True, exist_ok=True)
 results_dir.mkdir(parents=True, exist_ok=True)
 
 # Initialize wandb logger
-config = cast(
-    dict[str, Any],
-    OmegaConf.to_container(train_cfg, resolve=True)
-)
+config = cast(dict[str, Any], OmegaConf.to_container(train_cfg, resolve=True))
 logger = WandBLogger(
     project="Lite-GPT",
     entity=train_cfg.entity,
@@ -46,6 +43,8 @@ metrics = TrainingMetrics()
 
 # Store best validation loss
 best_val_loss = float("inf")
+patience = train_cfg.patience
+patience_counter = 0
 
 torch.manual_seed(train_cfg.seed)
 if torch.cuda.is_available():
@@ -68,7 +67,7 @@ for name, param in model.named_parameters():
         decay.append(param)
     else:
         no_decay.append(param)
-    
+
 num_decay = sum(p.numel() for p in decay)
 num_no_decay = sum(p.numel() for p in no_decay)
 
@@ -88,17 +87,19 @@ optimizer = torch.optim.AdamW(
 
 compiled_model = torch.compile(model)
 
+
 def scheduler(it: int) -> float:
     if it < warmup_steps:
         return max_lr * (it + 1) / warmup_steps
     if it > max_steps:
         return min_lr
-    
+
     decay_ratio = (it - warmup_steps) / (max_steps - warmup_steps)
-    assert 0 <= decay_ratio <= 1 
+    assert 0 <= decay_ratio <= 1
     coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio))
 
     return min_lr + coeff * (max_lr - min_lr)
+
 
 @torch.no_grad()
 def estimate_loss():
@@ -112,10 +113,10 @@ def estimate_loss():
 
         _, loss = compiled_model(x, y)
         losses.append(loss.item())
-        
+
     model.train()
     val_loss = sum(losses) / len(losses)
-    perplexity = math.exp(min(val_loss, 20)) # Cap loss to prevent overflow in exp
+    perplexity = math.exp(min(val_loss, 20))  # Cap loss to prevent overflow in exp
     metrics.add_val_loss(val_loss)
     metrics.add_perplexity(perplexity)
     return val_loss, perplexity
@@ -129,25 +130,21 @@ print("=" * 80)
 print("=" * 80)
 
 total_params = sum(p.numel() for p in model.parameters())
-trainable_params = sum(
-    p.numel() for p in model.parameters() if p.requires_grad
-)
+trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Total params:     {total_params:,}")
 print(f"Trainable params: {trainable_params:,}")
 print(f"Frozen params:    {total_params - trainable_params:,}")
 print("=" * 80)
 
 for name, module in model.named_modules():
-    total = sum(p.numel()for p in module.parameters(recurse=False))
+    total = sum(p.numel() for p in module.parameters(recurse=False))
 
-    trainable = sum(p.numel() for p in module.parameters(recurse=False) if p.requires_grad)
+    trainable = sum(
+        p.numel() for p in module.parameters(recurse=False) if p.requires_grad
+    )
 
     if total > 0:
-        print(
-            f"{name:30} "
-            f"total={total:>10,} "
-            f"trainable={trainable:>10,}"
-        )
+        print(f"{name:30} total={total:>10,} trainable={trainable:>10,}")
 print("=" * 80)
 
 model.train()
@@ -156,10 +153,11 @@ grad_accum_steps = train_cfg.grad_accum_steps
 
 step_start: float | None = None
 
-assert train_cfg.max_iters % grad_accum_steps == 0, "grad_accum_steps should completely divide max_iters otherwise grads at the end will be ignored"
+assert train_cfg.max_iters % grad_accum_steps == 0, (
+    "grad_accum_steps should completely divide max_iters otherwise grads at the end will be ignored"
+)
 
 for i in range(train_cfg.max_iters):
-
     if i % grad_accum_steps == 0:
         if device == "cuda":
             torch.cuda.synchronize()
@@ -171,7 +169,7 @@ for i in range(train_cfg.max_iters):
     # Forward pass with gradient accumulation (bf16 doesnt work on colab T4)
     with torch.autocast(device_type=device, dtype=torch.bfloat16):
         logits, loss = compiled_model(x, y)
-    
+
     # Scale loss by accumulation steps
     scaled_loss = loss / grad_accum_steps
     scaled_loss.backward()
@@ -180,37 +178,40 @@ for i in range(train_cfg.max_iters):
     # Gradient accumulation step
     if (i + 1) % grad_accum_steps == 0:
         norm = torch.nn.utils.clip_grad_norm_(
-            model.parameters(), 
-            max_norm=train_cfg.grad_clip
+            model.parameters(), max_norm=train_cfg.grad_clip
         )
-        
+
         optimizer_step = (i + 1) // grad_accum_steps
         lr = scheduler(optimizer_step)
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
-        
+
         optimizer.step()
         optimizer.zero_grad()
-        
+
         # Average accumulated loss
         avg_loss = accumulated_loss / grad_accum_steps
         accumulated_loss = 0.0
-        
+
         if device == "cuda":
             torch.cuda.synchronize()
 
         assert step_start is not None, "starting time must not be None"
         step_time = time.time() - step_start
-        
-        tokens_per_sec = (train_loader.batch_size * train_loader.seq_len * grad_accum_steps) / step_time
-        
+
+        tokens_per_sec = (
+            train_loader.batch_size * train_loader.seq_len * grad_accum_steps
+        ) / step_time
+
         # Track metrics
-        metrics.add_train_step(optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec)
-        
+        metrics.add_train_step(
+            optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec
+        )
+
         # Validation and logging
         if (optimizer_step % train_cfg.eval_interval) == 0:
             val_loss, perplexity = estimate_loss()
-            
+
             log_dict = {
                 "train/loss": avg_loss,
                 "train/learning_rate": lr,
@@ -220,15 +221,15 @@ for i in range(train_cfg.max_iters):
                 "val/perplexity": perplexity,
                 "train/step": optimizer_step,
             }
-            
+
             # Log to wandb
             logger.log(log_dict, step=optimizer_step)
-            
+
             # Save checkpoint
             is_best = val_loss < best_val_loss
             if is_best:
                 best_val_loss = val_loss
-            
+
             checkpoint_manager.save(
                 step=optimizer_step,
                 model=model,
@@ -245,10 +246,20 @@ for i in range(train_cfg.max_iters):
                 },
                 is_best=is_best,
             )
-            
+
             # Cleanup old checkpoints
             checkpoint_manager.delete_old_checkpoints(keep_last=3)
-            
+
+            if is_best:
+                patience_counter = 0
+            else:
+                patience_counter += 1
+                if patience_counter >= patience:
+                    print(
+                        f"Early stopping triggered: val_loss did not improve for {patience} evaluations. Best val_loss: {best_val_loss:.4f}"
+                    )
+                    break
+
             print(
                 f"[Step {i:5d}] "
                 f"train_loss: {avg_loss:.4f} | "
@@ -269,14 +280,14 @@ for i in range(train_cfg.max_iters):
                 "train/step": optimizer_step,
             }
             logger.log(log_dict, step=optimizer_step)
-            
+
             print(
                 f"[Step {i:5d}] "
                 f"train_loss: {avg_loss:.4f} | "
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
                 f"tok/s: {tokens_per_sec:.0f}",
-                f"train/step: {optimizer_step}"
+                f"train/step: {optimizer_step}",
             )
 
 print("=" * 80)
@@ -286,26 +297,35 @@ logger.finish()
 
 # Save final results
 import json
+
 results_file = results_dir / "training_results.json"
 with open(results_file, "w") as f:
-    json.dump({
-        "final_metrics": metrics.get_latest_metrics(),
-        "best_val_loss": best_val_loss,
-        "total_optimizer_steps": train_cfg.max_iters // grad_accum_steps,
-        "config": config,
-    }, f, indent=2)
+    json.dump(
+        {
+            "final_metrics": metrics.get_latest_metrics(),
+            "best_val_loss": best_val_loss,
+            "total_optimizer_steps": train_cfg.max_iters // grad_accum_steps,
+            "config": config,
+        },
+        f,
+        indent=2,
+    )
 
 # Save metrics to logs
 logs_file = logs_dir / "training_metrics.json"
 with open(logs_file, "w") as f:
-    json.dump({
-        "losses": metrics.losses,
-        "learning_rates": metrics.learning_rates,
-        "grad_norms": metrics.grad_norms,
-        "tokens_per_sec": metrics.tokens_per_sec,
-        "val_losses": metrics.val_losses,
-        "steps": metrics.steps,
-    }, f, indent=2)
+    json.dump(
+        {
+            "losses": metrics.losses,
+            "learning_rates": metrics.learning_rates,
+            "grad_norms": metrics.grad_norms,
+            "tokens_per_sec": metrics.tokens_per_sec,
+            "val_losses": metrics.val_losses,
+            "steps": metrics.steps,
+        },
+        f,
+        indent=2,
+    )
 
 print(f"Results saved to: {results_file}")
 print(f"Metrics saved to: {logs_file}")

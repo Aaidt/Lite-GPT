@@ -1,4 +1,5 @@
 dataset_name: fineweb + the stack smol + Tiny Stories
+n_vocab: 16384
 
 raw_file: ./src/litegpt_25M/data/datasets/litegpt_25M.txt
 
@@ -11,7 +12,5 @@ val_bin: ./src/litegpt_25M/data/datasets/tokens/val.bin
 train_split: 0.9
 
 tokenizer: gpt2
-
-n_vocab: 16384
 
 seed: 42
