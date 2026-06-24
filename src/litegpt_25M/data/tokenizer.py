@@ -23,7 +23,12 @@ global_pbar = tqdm(
 
 
 streaming = True
-if Path(corpus_file).exists() and Path(corpus_file).stat().st_size > 0:
+if Path(tokenizer_path).exists():
+    print(
+        f"Tokenizer already exists at {tokenizer_path}. Skipping corpus creation and training."
+    )
+    streaming = False
+elif Path(corpus_file).exists() and Path(corpus_file).stat().st_size > 0:
     print(f"Corpus file already exists and is not empty. Skipping corpus creation.")
     streaming = False
 
@@ -32,7 +37,9 @@ if streaming:
     print(f"Creating corpus file {corpus_file}...")
     # stream all the datasets and store it in a txt file
     print(f"\nStreaming fineweb (target: {fineweb_target:,} tokens)...")
-    fineweb = load_dataset("HuggingFaceFW/fineweb", name="sample-10BT", split="train", streaming=True)
+    fineweb = load_dataset(
+        "HuggingFaceFW/fineweb", name="sample-10BT", split="train", streaming=True
+    )
 
     fineweb_tokens = 0
     pbar = tqdm(total=fineweb_target, desc="fineweb", unit="tok", unit_scale=True)
@@ -47,13 +54,15 @@ if streaming:
             pbar.update(added)
             global_pbar.update(added)
     pbar.close()
-    print(f"Fineweb tokens collected: {fineweb_tokens:,}") 
+    print(f"Fineweb tokens collected: {fineweb_tokens:,}")
 
     print(f"\nStreaming tinystories (target: {tinystories_target:,} tokens)...")
     tinystories = load_dataset("roneneldan/TinyStories", split="train", streaming=True)
 
     tinystories_tokens = 0
-    pbar = tqdm(total=tinystories_target, desc="tinystories", unit="tok", unit_scale=True)
+    pbar = tqdm(
+        total=tinystories_target, desc="tinystories", unit="tok", unit_scale=True
+    )
     for example in tqdm(tinystories, desc="tinystories"):
         if tinystories_tokens >= tinystories_target:
             break
@@ -89,6 +98,7 @@ if streaming:
 
 tokenizer_path = Path(tokenizer_path)
 
+
 def test_tokenizer(tokenizer: Tokenizer, text: str) -> None:
     ids = tokenizer.encode(text).ids
     print(f"Original text: {text}")
@@ -96,6 +106,7 @@ def test_tokenizer(tokenizer: Tokenizer, text: str) -> None:
     decoded = tokenizer.decode(ids)
     print(f"Decoded text: {decoded}")
     assert decoded == text, "Decoded text does not match original text"
+
 
 if tokenizer_path.exists():
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
