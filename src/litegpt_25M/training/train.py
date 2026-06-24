@@ -57,12 +57,33 @@ val_loader = LiteGPTDataLoader(split="val")
 model = LiteGPT()
 model.to(device)
 
+decay = []
+no_decay = []
+
+for name, param in model.named_parameters():
+    if not param.requires_grad:
+        continue
+
+    if param.ndim >= 2:
+        decay.append(param)
+    else:
+        no_decay.append(param)
+    
+num_decay = sum(p.numel() for p in decay)
+num_no_decay = sum(p.numel() for p in no_decay)
+
+print(f"decay params: {num_decay:,}")
+print(f"no_decay params: {num_no_decay:,}")
+
 optimizer = torch.optim.AdamW(
-    model.parameters(),
+    [
+        {"params": decay, "weight_decay": 0.1},
+        {"params": no_decay, "weight_decay": 0.0},
+    ],
     lr=train_cfg.max_lr,
     betas=(train_cfg.beta1, train_cfg.beta2),
     eps=train_cfg.eps,
-    fused=True
+    fused=True,
 )
 
 compiled_model = torch.compile(model)

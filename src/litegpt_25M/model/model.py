@@ -156,7 +156,7 @@ class LiteGPT(nn.Module):
         self.lm_head = nn.Linear(d_model, n_vocab, bias=False)
 
         self.apply(self._init_weights)
-        self.token_emb.weight = self.lm_head.weight
+        self.lm_head.weight = self.token_emb.weight
 
     def _init_weights(self, module: nn.Module) -> None:
         if isinstance(module, nn.Linear):

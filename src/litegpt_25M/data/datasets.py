@@ -37,9 +37,7 @@ if train_file.exists() and val_file.exists():
     print(f"val_tokens: {val_tokens}")
     print(f"total: {train_tokens + val_tokens}")
     if train_tokens + val_tokens >= TOTAL_TARGET:
-        print(
-            f"Found existing token files with {train_tokens + val_tokens:,}/{TOTAL_TARGET:,} tokens. Skipping streaming. :) naise"
-        )
+        print(f"Found token files with {train_tokens + val_tokens:,}/{TOTAL_TARGET:,} tokens. Skipping streaming. :)yay")
         needs_streaming = False
     else:
         print("yep need to download :( ...")
@@ -141,25 +139,23 @@ if needs_streaming:
 
     total_tokens = train_count + val_count
 
-train = np.memmap(
-    ".src/litegpt_25M/data/datasets/tokens/train.bin", dtype=np.uint16, mode="r"
-)
-val = np.memmap(
-    ".src/litegpt_25M/data/datasets/tokens/val.bin", dtype=np.uint16, mode="r"
-)
+    print(f"\nVocab size: {encoding.n_vocab:,}")
+    print(f"Total tokens: {total_tokens:,}")
+    print(f"Training tokens: {train_count:,}")
+    print(f"Validation tokens: {val_count:,}")
+    
+    print(f"train.bin: {train_file.stat().st_size / (1024**3):.2f} GB")
+    print(f"val.bin: {val_file.stat().st_size / (1024**3):.2f} GB")
+
+train = np.memmap(train_file, dtype=np.uint16, mode="r")
+val = np.memmap(val_file, dtype=np.uint16, mode="r")
 
 print(len(train))
 print(len(val))
-print("=" * 80)
+print("=" * 10)
 print(train.min())
 print(train.max())
 
-# print(f"\nVocab size: {encoding.n_vocab:,}")
-# print(f"Total tokens: {total_tokens:,}")
-# print(f"Training tokens: {train_count:,}")
-# print(f"Validation tokens: {val_count:,}")
 
-# print(f"train.bin: {train_file.stat().st_size / (1024**3):.2f} GB")
-# print(f"val.bin: {val_file.stat().st_size / (1024**3):.2f} GB")
 
 print("\nDone!")
