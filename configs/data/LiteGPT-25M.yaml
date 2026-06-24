@@ -12,4 +12,6 @@ train_split: 0.9
 
 tokenizer: gpt2
 
+n_vocab: 16384
+
 seed: 42

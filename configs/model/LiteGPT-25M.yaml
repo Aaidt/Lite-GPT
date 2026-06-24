@@ -1,4 +1,4 @@
-n_vocab: 50257
+n_vocab: 16384
 
 seq_len: 512
 

@@ -1,17 +1,19 @@
 from datasets import load_dataset
-import tiktoken
+# import tiktoken
+from .tokenizer import encode, EOT_ID
 from omegaconf import OmegaConf
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 
 cfg = OmegaConf.load("./configs/data/LiteGPT-25M.yaml")
+n_vocab = cfg.n_vocab
 
-encoding = tiktoken.get_encoding(cfg.tokenizer)
-assert encoding.decode(encoding.encode("Hello world")) == "Hello world", (
-    "Tokenizer round-trip failed"
-)
-assert encoding.n_vocab <= np.iinfo(np.uint16).max, "n_vocab is more than uint16"
+# encoding = tiktoken.get_encoding(cfg.tokenizer)
+# assert encoding.decode(encoding.encode("Hello world")) == "Hello world", (
+#     "Tokenizer round-trip failed"
+# )
+# assert encoding.n_vocab <= np.iinfo(np.uint16).max, "n_vocab is more than uint16"
 
 train_file = Path(cfg.train_bin)
 val_file = Path(cfg.val_bin)
@@ -51,8 +53,8 @@ if needs_streaming:
     val_count = 0
 
     def write_tokens(text: str):
-        tokens = encoding.encode_ordinary(text)
-        tokens.append(encoding.eot_token)
+        tokens = encode(text)
+        tokens.append(EOT_ID)
         arr = np.array(tokens, dtype=np.uint16)
         if rng.random() < (1 - split):
             arr.tofile(val_f)
@@ -139,7 +141,7 @@ if needs_streaming:
 
     total_tokens = train_count + val_count
 
-    print(f"\nVocab size: {encoding.n_vocab:,}")
+    print(f"\nVocab size: {n_vocab:,}")
     print(f"Total tokens: {total_tokens:,}")
     print(f"Training tokens: {train_count:,}")
     print(f"Validation tokens: {val_count:,}")
@@ -155,7 +157,5 @@ print(len(val))
 print("=" * 10)
 print(train.min())
 print(train.max())
-
-
 
 print("\nDone!")

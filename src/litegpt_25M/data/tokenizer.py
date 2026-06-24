@@ -101,7 +101,10 @@ def test_tokenizer(tokenizer: Tokenizer, text: str) -> None:
 if tokenizer_path.exists():
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
     train = False
-    test_tokenizer(tokenizer, "Hello, world!")
+    EOT_ID = tokenizer.token_to_id("<|endoftext|>")
+
+    def encode(text: str) -> list[int]:
+        return tokenizer.encode(text).ids
 
 if train:
     # train a byte-level BPE on this corpus
