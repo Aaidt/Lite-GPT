@@ -24,7 +24,7 @@ global_pbar = tqdm(
 
 streaming = True
 if Path(corpus_file).exists() and Path(corpus_file).stat().st_size > 0:
-    print(f"Corpus file {corpus_file} already exists and is not empty. Skipping corpus creation.")
+    print(f"Corpus file already exists and is not empty. Skipping corpus creation.")
     streaming = False
 
 if streaming:
@@ -107,7 +107,7 @@ if train:
     # train a byte-level BPE on this corpus
     tokenizer = Tokenizer(models.BPE())
 
-    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel()
+    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
     tokenizer.decoder = decoders.ByteLevel()
 
     trainer = trainers.BpeTrainer(
