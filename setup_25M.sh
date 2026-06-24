@@ -12,7 +12,7 @@ else
     cd Lite-GPT
 fi
 
-echo "creating necessary folders needed..."
+echo "creating folders for logging and checkpointing..."
 mkdir -p checkpoints results logs
 
 echo "installing uv and other packages..."

@@ -2,7 +2,7 @@
 
 LiteGPT-25M is trained on a curated mixture of web text, source code, and synthetic stories. The dataset is designed to provide broad language coverage while remaining practical to preprocess and train on a single NVIDIA T4 GPU.
 
-The final corpus contains approximately **500 million GPT-2 tokens** distributed across three datasets.
+The final corpus contains approximately **500 million tokens** (using a custom ByteLevel BPE tokenizer with 16,384 vocabulary) distributed across three datasets.
 
 ## Dataset Composition
 
@@ -18,8 +18,8 @@ The final corpus contains approximately **500 million GPT-2 tokens** distributed
 | Metric           | Value            |
 | ---------------- | ---------------- |
 | Total Tokens     | ~500M            |
-| Tokenizer        | GPT-2 (tiktoken) |
-| Vocabulary Size  | 50,257           |
+| Tokenizer        | Custom ByteLevel BPE |
+| Vocabulary Size  | 16,384               |
 | Context Length   | 512              |
 | Train Split      | 90%              |
 | Validation Split | 10%              |
@@ -39,8 +39,8 @@ The Stack Smol (50M)
          │
          ▼
 ┌──────────────────┐
-│ GPT-2 Tokenizer  │
-│ (tiktoken)       │
+│ ByteLevel BPE    │
+│ (vocab 16,384)   │
 └────────┬─────────┘
          │
          ▼
@@ -65,9 +65,9 @@ train.bin  val.bin
 
 ## Tokenizer
 
-* Type: tiktoken
-* Encoding: gpt2
-* Vocabulary size: 50,257
+* Type: ByteLevel BPE (trained on the corpus)
+* Vocabulary size: 16,384
+* Special tokens: `<|endoftext|>`
 * End-of-text token appended after every document
 * Tokens stored as uint16 for efficient disk usage
 

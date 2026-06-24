@@ -11,19 +11,22 @@
 | Batch Size            | 16    |
 | Gradient Accumulation | 8     |
 | Effective Batch Size  | 128   |
-| Sequence Length       | 256   |
-| Learning Rate         | 3e-4  |
-| Min Learning Rate     | 3e-6  |
+| Sequence Length       | 512   |
+| Learning Rate         | 6e-4  |
+| Min Learning Rate     | 6e-5  |
 | Weight Decay          | 0.1   |
 | Warmup Steps          | 1000  |
 | Max Steps             | 10000 |
+| Eval Interval         | 500   |
+| Eval Iters            | 100   |
+| Grad Clip             | 1.0   |
 
 ## Tokens Seen
 ```text
-16 × 8 × 256 × 10000
-= 327,680,000 tokens
+16 × 512 × 8 x 10000
+= 655,360,000 tokens
 
-≈328M tokens.
+≈ 655M tokens.
 ```
 
 ## Optimizer
@@ -37,8 +40,8 @@ AdamW
 
 Cosine Decay
 
-Warmup: 0 → 3e-4 (500 steps)
-Decay: 3e-4 → 3e-6 (9500 steps)
+Warmup: 0 → 6e-4 (125 optimizer steps / 1000 raw iterations)
+Decay: 6e-4 → 6e-5 (1125 optimizer steps)
 
 ## Loss Function
 
@@ -107,10 +110,10 @@ Observations: -->
 | Val Loss   | 3.0 - 4.5 |
 | Perplexity | 20 - 90   |
 
-## Final Results
+<!-- ## Final Results
 
 | Metric | Value |
 |---------|---------|
 | Train Loss | 2.878491520881653 |
 | Val Loss | 5.985600624084473 |
-| Perplexity | 397.6612944866264 |
+| Perplexity | 397.6612944866264 | -->

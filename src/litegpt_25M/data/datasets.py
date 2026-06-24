@@ -37,7 +37,7 @@ if train_file.exists() and val_file.exists():
     val_tokens = val_file.stat().st_size // 2
     print(f"train_tokens: {train_tokens}")
     print(f"val_tokens: {val_tokens}")
-    print(f"total: {train_tokens + val_tokens}")
+    print(f"total: {train_tokens + val_tokens} | needed: {TOTAL_TARGET}")
     if train_tokens + val_tokens >= TOTAL_TARGET:
         print(f"Found token files with {train_tokens + val_tokens:,}/{TOTAL_TARGET:,} tokens. Skipping streaming. :)yay")
         needs_streaming = False
@@ -139,6 +139,7 @@ if needs_streaming:
 
     total_tokens = train_count + val_count
 
+    print("=" * 60)
     print(f"\nVocab size: {n_vocab:,}")
     print(f"Total tokens: {total_tokens:,}")
     print(f"Training tokens: {train_count:,}")
@@ -150,9 +151,9 @@ if needs_streaming:
 train = np.memmap(train_file, dtype=np.uint16, mode="r")
 val = np.memmap(val_file, dtype=np.uint16, mode="r")
 
+print("=" * 60)
 print(f"len of training file: {len(train)}")
 print(f"len of val file: {len(val)}")
-print("=" * 10)
 print("min from train: ", train.min())
 print("max from train: ", train.max())
 

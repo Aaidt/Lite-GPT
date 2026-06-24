@@ -6,8 +6,8 @@ The goal of LiteGPT-25M is not to achieve state-of-the-art performance, but to p
 - Model type: Decoder-only Transformer
 - Parameters: ~25M
 - Context length: 512
-- Vocabulary size: 50,257
-- Attention: GQA flash-Attention
+- Vocabulary size: 16,384 (custom BPE tokenizer)
+- Attention: GQA flash-Attention (8 query / 4 key-value heads)
 - Positional Encoding: RoPE
 
 ## Architecture Diagram
@@ -63,12 +63,13 @@ Input Tokens [B, T]
 | Parameter | Value |
 |------------|---------|
 | n_layers | 8 |
-| d_model | 320 |
+| d_model | 448 |
 | n_heads | 8 |
-| head_dim | 40 |
-| ffn_dim | 896 |
+| head_dim | 56 |
+| n_kv_heads | 4 |
+| ffn_dim | 1152 |
 | context_length | 512 |
-| vocab_size | 50257 |
+| vocab_size | 16384 |
 
 ## Transformer Block
 
@@ -92,15 +93,15 @@ x = x + FFN(x)
 
 ## Parameter Count
 
-| Component        |                                                          Params |
-| ---------------- | --------------------------------------------------------------: |
-| Token Embeddings |                                        50257 × 320 = 16,082,240 |
-| Attention (GQA)  | [(320×320) + (320×160) + (320×160) + (320×320)] × 8 = 3,276,800 |
-| SwiGLU FFN       |             [(320×896) + (320×896) + (896×320)] × 8 = 6,881,280 |
-| RMSNorm          |                                           (320 × 2) × 8 = 5,120 |
-| Final RMSNorm    |                                                             320 |
+| Component        |                                                              Params |
+| ---------------- | ------------------------------------------------------------------: |
+| Token Embeddings |                                        16384 × 448 = 7,340,032 |
+| Attention (GQA)  | [(448×448) + (448×224) + (448×224) + (448×448)] × 8 = 4,816,896 |
+| SwiGLU FFN       |             [(448×1152) + (448×1152) + (1152×448)] × 8 = 12,386,304 |
+| RMSNorm          |                                               (448 × 2) × 8 = 7,168 |
+| Final RMSNorm    |                                                             448 |
 | LM Head          |                               weight tied with token embeddings |
-| Total            |                                                    **≈ 26.25M** |
+| Total            |                                                    **≈ 24.6M** |
 
 
 ## Design Decisions
