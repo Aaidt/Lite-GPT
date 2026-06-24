@@ -12,6 +12,9 @@ class TrainingMetrics:
     val_losses: List[float] = field(default_factory=list)
     steps: List[int] = field(default_factory=list)
     perplexity: List[float] = field(default_factory=list)
+    weight_norms: List[float] = field(default_factory=list)
+    update_norms: List[float] = field(default_factory=list)
+    update_ratios: List[float] = field(default_factory=list)
     
     def add_train_step(
         self,
@@ -20,6 +23,9 @@ class TrainingMetrics:
         lr: float,
         grad_norm: float,
         tokens_per_sec: float,
+        weight_norm: float = 0.0,
+        update_norm: float = 0.0,
+        update_ratio: float = 0.0,
     ):
         """Add training step metrics."""
         self.steps.append(step)
@@ -27,6 +33,9 @@ class TrainingMetrics:
         self.learning_rates.append(lr)
         self.grad_norms.append(grad_norm)
         self.tokens_per_sec.append(tokens_per_sec)
+        self.weight_norms.append(weight_norm)
+        self.update_norms.append(update_norm)
+        self.update_ratios.append(update_ratio)
     
     def add_val_loss(self, val_loss: float):
         """Add validation loss."""
@@ -44,6 +53,9 @@ class TrainingMetrics:
             "grad_norm": self.grad_norms[-1] if self.grad_norms else 0.0,
             "tokens_per_sec": self.tokens_per_sec[-1] if self.tokens_per_sec else 0.0,
             "perplexity": self.perplexity[-1] if self.perplexity else 0.0,
+            "weight_norm": self.weight_norms[-1] if self.weight_norms else 0.0,
+            "update_norm": self.update_norms[-1] if self.update_norms else 0.0,
+            "update_ratio": self.update_ratios[-1] if self.update_ratios else 0.0,
         }
         if self.val_losses:
             metrics["val_loss"] = self.val_losses[-1]
@@ -68,3 +80,6 @@ class TrainingMetrics:
         self.tokens_per_sec.clear()
         self.val_losses.clear()
         self.steps.clear()
+        self.weight_norms.clear()
+        self.update_norms.clear()
+        self.update_ratios.clear()

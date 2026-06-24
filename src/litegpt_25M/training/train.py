@@ -43,8 +43,6 @@ metrics = TrainingMetrics()
 
 # Store best validation loss
 best_val_loss = float("inf")
-patience = train_cfg.patience
-patience_counter = 0
 
 torch.manual_seed(train_cfg.seed)
 if torch.cuda.is_available():
@@ -186,7 +184,21 @@ for i in range(train_cfg.max_iters):
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
 
+        # # Compute weight_norm before update
+        # weight_norm = torch.sqrt(
+        #     sum(p.data.norm() ** 2 for p in model.parameters())
+        # ).item()
+        # pre_params = [p.data.clone() for p in model.parameters()]
+
         optimizer.step()
+
+        # Compute update_norm and update_ratio
+        # update_norm = math.sqrt(
+        #     sum((p.data - pre).norm().item() ** 2 for p, pre in zip(model.parameters(), pre_params))
+        # )
+        # del pre_params
+        # update_ratio = update_norm / weight_norm if weight_norm > 0 else 0.0
+
         optimizer.zero_grad()
 
         # Average accumulated loss
@@ -204,19 +216,26 @@ for i in range(train_cfg.max_iters):
         ) / step_time
 
         # Track metrics
-        metrics.add_train_step(
-            optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec
-        )
+        metrics.add_train_step(optimizer_step, avg_loss, lr, norm.item(), tokens_per_sec)
 
         # Validation and logging
         if (optimizer_step % train_cfg.eval_interval) == 0:
             val_loss, perplexity = estimate_loss()
+
+            # Compute attention entropy on a validation batch
+            val_x, _ = val_loader.get_batch()
+            val_x = val_x.to(device)
+            
 
             log_dict = {
                 "train/loss": avg_loss,
                 "train/learning_rate": lr,
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
+                # "train/weight_norm": weight_norm,
+                # "train/update_norm": update_norm,
+                # "train/update_ratio": update_ratio,
+                # "train/attention_entropy": attention_entropy,
                 "val/loss": val_loss,
                 "val/perplexity": perplexity,
                 "train/step": optimizer_step,
@@ -243,22 +262,16 @@ for i in range(train_cfg.max_iters):
                     "learning_rate": lr,
                     "grad_norm": norm.item(),
                     "tokens_per_sec": tokens_per_sec,
+                #     "weight_norm": weight_norm,
+                #     "update_norm": update_norm,
+                #     "update_ratio": update_ratio,
+                #     "attention_entropy": attention_entropy,
                 },
                 is_best=is_best,
             )
 
             # Cleanup old checkpoints
             checkpoint_manager.delete_old_checkpoints(keep_last=3)
-
-            if is_best:
-                patience_counter = 0
-            else:
-                patience_counter += 1
-                if patience_counter >= patience:
-                    print(
-                        f"Early stopping triggered: val_loss did not improve for {patience} evaluations. Best val_loss: {best_val_loss:.4f}"
-                    )
-                    break
 
             print(
                 f"[Step {i:5d}] "
@@ -267,7 +280,10 @@ for i in range(train_cfg.max_iters):
                 f"val_perplexity: {perplexity:.2f} | "
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
-                f"tok/s: {tokens_per_sec:.0f}"
+                # f"w_norm: {weight_norm:.2f} | "
+                # f"upd_ratio: {update_ratio:.2e} | "
+                # f"attn_ent: {attention_entropy:.3f} | "
+                f"tok/s: {tokens_per_sec:.0f} "
                 f"decay_ratio={(optimizer_step - warmup_steps) / (max_steps - warmup_steps):.3f}"
                 + (" [BEST]" if is_best else "")
             )
@@ -277,6 +293,9 @@ for i in range(train_cfg.max_iters):
                 "train/learning_rate": lr,
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
+                # "train/weight_norm": weight_norm,
+                # "train/update_norm": update_norm,
+                # "train/update_ratio": update_ratio,
                 "train/step": optimizer_step,
             }
             logger.log(log_dict, step=optimizer_step)
@@ -286,8 +305,9 @@ for i in range(train_cfg.max_iters):
                 f"train_loss: {avg_loss:.4f} | "
                 f"lr: {lr:.2e} | "
                 f"grad_norm: {norm:.2f} | "
-                f"tok/s: {tokens_per_sec:.0f}",
-                f"train/step: {optimizer_step}",
+                # f"w_norm: {weight_norm:.2f} | "
+                # f"upd_ratio: {update_ratio:.2e} | "
+                f"tok/s: {tokens_per_sec:.0f}"
             )
 
 print("=" * 80)
@@ -322,6 +342,9 @@ with open(logs_file, "w") as f:
             "tokens_per_sec": metrics.tokens_per_sec,
             "val_losses": metrics.val_losses,
             "steps": metrics.steps,
+            # "weight_norms": metrics.weight_norms,
+            # "update_norms": metrics.update_norms,
+            # "update_ratios": metrics.update_ratios,
         },
         f,
         indent=2,

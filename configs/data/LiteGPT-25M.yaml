@@ -11,6 +11,6 @@ val_bin: ./src/litegpt_25M/data/datasets/tokens/val.bin
 
 train_split: 0.9
 
-tokenizer: gpt2
-
 seed: 42
+
+# tokenizer: gpt2

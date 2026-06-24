@@ -183,3 +183,45 @@ class LiteGPT(nn.Module):
                 logits.reshape(-1, logits.size(-1)), targets.reshape(-1)
             )
         return logits, loss
+
+    # @torch.no_grad()
+    # def compute_attention_entropy(self, x: Tensor) -> float:
+    #     x = self.token_emb(x)
+    #     total_entropy = 0.0
+
+    #     for layer in self.layers:
+    #         attn_input = layer.attn_norm(x)
+    #         gqa = layer.attention
+    #         b, seq, _ = attn_input.shape
+
+    #         q = gqa.q_proj(attn_input)
+    #         k = gqa.k_proj(attn_input)
+    #         v = gqa.v_proj(attn_input)
+
+    #         q = q.view(b, seq, gqa.n_heads, gqa.head_dim).transpose(1, 2)
+    #         k = k.view(b, seq, gqa.n_kv_heads, gqa.head_dim).transpose(1, 2)
+    #         v = v.view(b, seq, gqa.n_kv_heads, gqa.head_dim).transpose(1, 2)
+
+    #         q = apply_rope(q, cast(Tensor, gqa.rope_cos), cast(Tensor, gqa.rope_sin))
+    #         k = apply_rope(k, cast(Tensor, gqa.rope_cos), cast(Tensor, gqa.rope_sin))
+
+    #         k = repeat_kv(k, gqa.n_rep)
+    #         v = repeat_kv(v, gqa.n_rep)
+
+    #         scale = gqa.head_dim ** -0.5
+    #         attn_scores = torch.matmul(q, k.transpose(-2, -1)) * scale
+    #         causal_mask = torch.triu(
+    #             torch.ones(seq, seq, device=x.device), diagonal=1
+    #         ).bool()
+    #         attn_scores = attn_scores.masked_fill(causal_mask[None, None, :, :], float("-inf"))
+    #         attn_weights = F.softmax(attn_scores, dim=-1)
+    #         entropy = (-attn_weights * torch.log(attn_weights + 1e-8)).sum(dim=-1).mean()
+    #         total_entropy += entropy.item()
+
+    #         out = torch.matmul(attn_weights, v)
+    #         out = out.transpose(1, 2).contiguous().view(b, seq, d_model)
+    #         out = gqa.out_proj(out)
+    #         x = x + out
+    #         x = x + layer.ffn(layer.ffn_norm(x))
+
+    #     return total_entropy / len(self.layers)
