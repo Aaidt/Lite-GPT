@@ -88,7 +88,6 @@ if streaming:
     corpus_f.close()
 
 tokenizer_path = Path(tokenizer_path)
-train = True
 
 def test_tokenizer(tokenizer: Tokenizer, text: str) -> None:
     ids = tokenizer.encode(text).ids
@@ -100,13 +99,12 @@ def test_tokenizer(tokenizer: Tokenizer, text: str) -> None:
 
 if tokenizer_path.exists():
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
-    train = False
     EOT_ID = tokenizer.token_to_id("<|endoftext|>")
 
     def encode(text: str) -> list[int]:
         return tokenizer.encode(text).ids
 
-if train:
+else:
     # train a byte-level BPE on this corpus
     tokenizer = Tokenizer(models.BPE())
 
@@ -123,5 +121,5 @@ if train:
         trainer=trainer,
     )
 
-    tokenizer.save("./src/litegpt_25M/data/tokenizer.json")
+    tokenizer.save(str(tokenizer_path))
     test_tokenizer(tokenizer, "Hello, world!")
