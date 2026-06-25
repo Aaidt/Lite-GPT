@@ -145,34 +145,26 @@ if __name__ == "__main__":
     # load checkpoint
     checkpoint_dir = Path(args.checkpoint)
 
-    if checkpoint_dir.is_dir():
-        if (checkpoint_dir / "model.safetensors").exists():
-            load_model(
-                model,
-                str(checkpoint_dir / "model.safetensors")
-            )
-            print(f"Loaded model weights from {checkpoint_dir / 'model.safetensors'}")
+    print(f"  📂  Loaded model weights from {checkpoint_dir / 'model.safetensors'}")
             training_state = torch.load(
                 checkpoint_dir / "training_state.pt",
                 weights_only=True,
             )
-            print(
-                f"Loaded checkpoint from step "
-                f"{training_state['step']}"
-            )
+            print(f"  📍  Checkpoint step: {training_state['step']}")
 
     elif checkpoint_dir.suffix == ".safetensors":
         load_model(
             model,
             str(checkpoint_dir)
         )
-        print(f"Loaded model weights from {checkpoint_dir}")
+        print(f"  📂  Loaded model weights from {checkpoint_dir}")
 
     else:
-        print(f"Warning: Checkpoint not found at {args.checkpoint}")
+        print(f"  ⚠️  Warning: Checkpoint not found at {args.checkpoint}")
 
     # Generate text
-    print(f"Generating text from prompt: '{args.prompt}'")
+    print(f"\n  ✏️  Generating from prompt: \"{args.prompt}\"")
+    print(f"  ⚙️   max_tokens={args.max_tokens}, temperature={args.temperature}, top_k={args.top_k}")
     generated = generate(
         model,
         args.prompt,
@@ -192,20 +184,17 @@ if __name__ == "__main__":
         with open(metadata_file) as f:
             metadata = json.load(f)
 
-        print(
-            f"Step: {metadata['step']} | "
-            f"Val Loss: {metadata['metrics']['val_loss']:.4f}"
-        )
+        print(f"  📊  Step: {metadata['step']} | Val Loss: {metadata['metrics']['val_loss']:.4f}")
         
-    print("\n" + "=" * 80)
-    print("Generated Text:")
-    print("=" * 80)
-    print(full_text)
-    print("=" * 80)
+    print("\n" + "╔" + "═" * 78 + "╗")
+    print("║" + "          ✍️  Generated Text                  ".center(78) + "║")
+    print("╠" + "═" * 78 + "╣")
+    print("║ " + full_text.replace("\n", "\n║ ") + " " * max(0, 76 - len(full_text.split('\n')[-1])) + "║")
+    print("╚" + "═" * 78 + "╝")
 
     # Save to file
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     with open(args.output, "w") as f:
         f.write(full_text)
 
-    print(f"Generated text saved to {args.output}")
+    print(f"  💾  Generated text saved to {args.output}")

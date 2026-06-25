@@ -69,8 +69,8 @@ for name, param in model.named_parameters():
 num_decay = sum(p.numel() for p in decay)
 num_no_decay = sum(p.numel() for p in no_decay)
 
-print(f"decay params: {num_decay:,}")
-print(f"no_decay params: {num_no_decay:,}")
+print(f"  ⚡ decay params:    {num_decay:,}")
+print(f"  🚫 no_decay params: {num_no_decay:,}")
 
 optimizer = torch.optim.AdamW(
     [
@@ -120,19 +120,20 @@ def estimate_loss():
     return val_loss, perplexity
 
 
-print("=" * 80)
-print("Training Configuration")
-print("=" * 80)
+print("╔" + "═" * 78 + "╗")
+print("║" + "          🏗️  Training Configuration          ".center(78) + "║")
+print("╚" + "═" * 78 + "╝")
 print(OmegaConf.to_yaml(train_cfg))
-print("=" * 80)
-print("=" * 80)
+print("╔" + "═" * 78 + "╗")
+print("║" + "          📊 Model Parameters                  ".center(78) + "║")
+print("╠" + "═" * 78 + "╣")
 
 total_params = sum(p.numel() for p in model.parameters())
 trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-print(f"Total params:     {total_params:,}")
-print(f"Trainable params: {trainable_params:,}")
-print(f"Frozen params:    {total_params - trainable_params:,}")
-print("=" * 80)
+print(f"║  Total params:     {total_params:>15,}  {'':>38}║")
+print(f"║  Trainable params: {trainable_params:>15,}  {'':>38}║")
+print(f"║  Frozen params:    {total_params - trainable_params:>15,}  {'':>38}║")
+print("╠" + "═" * 78 + "╣")
 
 for name, module in model.named_modules():
     total = sum(p.numel() for p in module.parameters(recurse=False))
@@ -142,8 +143,8 @@ for name, module in model.named_modules():
     )
 
     if total > 0:
-        print(f"{name:30} total={total:>10,} trainable={trainable:>10,}")
-print("=" * 80)
+        print(f"║  {name:30} total={total:>10,} trainable={trainable:>10,}  {'':>10}║")
+print("╚" + "═" * 78 + "╝")
 
 model.train()
 accumulated_loss = 0.0
@@ -273,19 +274,16 @@ for i in range(train_cfg.max_iters):
             # Cleanup old checkpoints
             checkpoint_manager.delete_old_checkpoints(keep_last=3)
 
+            best_tag = " 🏆 BEST" if is_best else ""
+            prog = (optimizer_step - warmup_steps) / (max_steps - warmup_steps)
             print(
-                f"[Step {i:5d}] "
-                f"train_loss: {avg_loss:.4f} | "
-                f"val_loss: {val_loss:.4f} | "
-                f"val_perplexity: {perplexity:.2f} | "
-                f"lr: {lr:.2e} | "
-                f"grad_norm: {norm:.2f} | "
-                # f"w_norm: {weight_norm:.2f} | "
-                # f"upd_ratio: {update_ratio:.2e} | "
-                # f"attn_ent: {attention_entropy:.3f} | "
-                f"tok/s: {tokens_per_sec:.0f} "
-                f"decay_ratio={(optimizer_step - warmup_steps) / (max_steps - warmup_steps):.3f}"
-                + (" [BEST]" if is_best else "")
+                f"  ╭─ Step {optimizer_step:>5d}/{max_steps} {'─'*15} {best_tag}"
+                f"\n  ├ 🔴 train_loss:    {avg_loss:.4f}"
+                f"\n  ├ 🟢 val_loss:      {val_loss:.4f}   (ppl: {perplexity:.2f})"
+                f"\n  ├ ⚡ lr:            {lr:.2e}"
+                f"\n  ├ 📐 grad_norm:     {norm:.2f}"
+                f"\n  ├ 🚀 tok/s:         {tokens_per_sec:.0f}"
+                f"\n  └ 📉 decay_ratio:   {prog:.3f}"
             )
         else:
             log_dict = {
@@ -301,18 +299,16 @@ for i in range(train_cfg.max_iters):
             logger.log(log_dict, step=optimizer_step)
 
             print(
-                f"[Step {i:5d}] "
-                f"train_loss: {avg_loss:.4f} | "
-                f"lr: {lr:.2e} | "
-                f"grad_norm: {norm:.2f} | "
-                # f"w_norm: {weight_norm:.2f} | "
-                # f"upd_ratio: {update_ratio:.2e} | "
-                f"tok/s: {tokens_per_sec:.0f}"
+                f"  ╭─ Step {optimizer_step:>5d}/{max_steps}"
+                f"\n  ├ 🔴 train_loss:    {avg_loss:.4f}"
+                f"\n  ├ ⚡ lr:            {lr:.2e}"
+                f"\n  ├ 📐 grad_norm:     {norm:.2f}"
+                f"\n  └ 🚀 tok/s:         {tokens_per_sec:.0f}"
             )
 
-print("=" * 80)
-print("Training Complete")
-print("=" * 80)
+print("╔" + "═" * 78 + "╗")
+print("║" + "          ✅  Training Complete! 🎉           ".center(78) + "║")
+print("╚" + "═" * 78 + "╝")
 logger.finish()
 
 # Save final results
@@ -350,5 +346,5 @@ with open(logs_file, "w") as f:
         indent=2,
     )
 
-print(f"Results saved to: {results_file}")
-print(f"Metrics saved to: {logs_file}")
+print(f"  📄 Results saved to: {results_file}")
+print(f"  📄 Metrics saved to: {logs_file}")
