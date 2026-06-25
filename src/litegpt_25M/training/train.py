@@ -19,9 +19,9 @@ max_lr = train_cfg.max_lr
 min_lr = max_lr * 0.1
 
 # Create directories
-logs_dir = Path("./content/drive/MyDrive/LiteGPT/logs")
-results_dir = Path("./content/drive/MyDrive/LiteGPT/results")
-checkpoints_dir = Path("./content/drive/MyDrive/LiteGPT/checkpoints")
+logs_dir = Path("./content/LiteGPT/logs")
+results_dir = Path("./content/LiteGPT/results")
+checkpoints_dir = Path("./content/LiteGPT/checkpoints")
 logs_dir.mkdir(parents=True, exist_ok=True)
 results_dir.mkdir(parents=True, exist_ok=True)
 
