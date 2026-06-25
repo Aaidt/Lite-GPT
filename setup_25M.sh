@@ -12,6 +12,13 @@ else
     cd Lite-GPT
 fi
 
+if [ -f /content/train.bin ] && [ -f /content/val.bin ]; then
+    echo "Found pre-existing token files in /content, moving them to datasets/tokens..."
+    mkdir -p src/litegpt_25M/data/datasets/tokens
+    mv /content/train.bin src/litegpt_25M/data/datasets/tokens/
+    mv /content/val.bin src/litegpt_25M/data/datasets/tokens/
+fi
+
 echo "creating folders for logging and checkpointing..."
 mkdir -p checkpoints results logs
 

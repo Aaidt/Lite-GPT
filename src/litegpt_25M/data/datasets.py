@@ -206,8 +206,6 @@ train = np.memmap(train_file, dtype=np.uint16, mode="r")
 val = np.memmap(val_file, dtype=np.uint16, mode="r")
 
 print("=" * 60)
-print(f"len of training file: {len(train)}")
-print(f"len of val file: {len(val)}")
 print("min from train: ", train.min())
 print("max from train: ", train.max())
 
