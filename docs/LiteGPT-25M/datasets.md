@@ -1,16 +1,15 @@
 # Dataset
 
-LiteGPT-25M is trained on a curated mixture of web text, source code, and synthetic stories. The dataset is designed to provide broad language coverage while remaining practical to preprocess and train on a single NVIDIA T4 GPU.
+LiteGPT-25M is trained on a curated mixture of web text and synthetic stories. The dataset is designed to provide broad language coverage while remaining practical to preprocess and train on a single NVIDIA T4 GPU.
 
-The final corpus contains approximately **500 million tokens** (using a custom ByteLevel BPE tokenizer with 16,384 vocabulary) distributed across three datasets.
+The final corpus contains approximately **500 million tokens** (using a custom ByteLevel BPE tokenizer with 16,384 vocabulary) distributed across two datasets.
 
 ## Dataset Composition
 
 | Dataset        |   Tokens | Percentage | Purpose                                             |
 | -------------- | -------: | ---------: | --------------------------------------------------- |
 | FineWeb        |     300M |        60% | General web knowledge and educational content       |
-| TinyStories    |     150M |        30% | Narrative structure, grammar, and language modeling |
-| The Stack Smol |      50M |        10% | Source code and programming patterns                |
+| TinyStories    |     200M |        40% | Narrative structure, grammar, and language modeling |
 | **Total**      | **500M** |   **100%** |                                                     |
 
 ## Dataset Statistics
@@ -29,8 +28,7 @@ The final corpus contains approximately **500 million tokens** (using a custom B
 
 ```text
 FineWeb (300M)
-TinyStories (150M)
-The Stack Smol (50M)
+TinyStories (200M)
         │
         ▼
 ┌──────────────────┐
@@ -93,10 +91,9 @@ Token IDs are streamed directly to disk during preprocessing and loaded through 
 
 ## Why This Dataset Mix?
 
-The dataset mixture balances three complementary sources of information:
+The dataset mixture balances two complementary sources of information:
 
 * **FineWeb** provides broad factual knowledge, educational content, and general language understanding.
 * **TinyStories** improves grammar, coherence, narrative structure, and basic reasoning.
-* **The Stack Smol** introduces programming syntax, code structure, and software engineering concepts.
 
 This combination creates a diverse corpus that is substantially richer than any individual dataset while remaining computationally feasible for small-scale pretraining experiments.

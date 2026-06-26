@@ -41,8 +41,7 @@ Trained on ~1B tokens (custom BPE tokenizer, vocab 16,384):
 | Dataset | Tokens | Weight |
 |---|---|---|
 | FineWeb | 300M | 60% |
-| TinyStories | 150M | 30% |
-| The Stack Smol | 50M | 10% |
+| TinyStories | 200M | 40% |
 
 Data is tokenized with a custom ByteLevel BPE tokenizer (vocab size 16,384), stored as `uint16` arrays, and split 90/10 train/validation.
 

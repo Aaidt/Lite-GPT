@@ -241,15 +241,13 @@ The objective is to bridge the gap between a GPT-2 style transformer and a moder
 | Dataset | Tokens | Percentage |
 |-----------|--------|------------|
 | FineWeb | 300M | 60% |
-| TinyStories | 150M | 30% |
-| The Stack Smol | 50M | 10% |
+| TinyStories | 200M | 40% |
 
 ### Data Pipeline
 
 ```text
 FineWeb (300M)
-TinyStories (150M)
-The Stack Smol (50M)
+TinyStories (200M)
         │
         ▼
 ┌──────────────────┐
