@@ -55,6 +55,8 @@ val_loader = LiteGPTDataLoader(split="val")
 model = LiteGPT()
 model.to(device)
 
+torch.set_float32_matmul_precision('high')
+
 decay = []
 no_decay = []
 
