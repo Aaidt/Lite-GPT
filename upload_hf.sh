@@ -4,6 +4,11 @@ set -euo pipefail
 REPO_NAME="LiteGPT-25M"
 OUT_DIR="./$REPO_NAME"
 
+# run benchmarks
+echo "🛻 Running evals..."
+uv run python3 -m evals.benchmark
+uv run python3 -m evals.generate --eval
+
 echo "📁  Creating folder: $REPO_NAME"
 mkdir -p "$OUT_DIR"
 

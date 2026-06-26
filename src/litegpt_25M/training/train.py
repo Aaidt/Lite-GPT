@@ -302,7 +302,7 @@ for i in range(train_cfg.max_iters):
                 f"├ 🔴 train_loss:    {avg_loss:.4f}"
                 f"├ ⚡ lr:            {lr:.2e}"
                 f"├ 📐 grad_norm:     {norm:.2f}"
-                f"├ 🚀 tok/s:         {tokens_per_sec:.0f}"
+                f"├  🚀 tok/s:         {tokens_per_sec:.0f}"
             )
 
 print("╔" + "═" * 78 + "╗")
