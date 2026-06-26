@@ -121,13 +121,13 @@ def estimate_loss():
     return val_loss, perplexity
 
 
-print("╔" + "═" * 78 + "╗")
-print("║" + "          🏗️  Training Configuration          ".center(78) + "║")
-print("╚" + "═" * 78 + "╝")
+print("╔" + "═" * 100 + "╗")
+print("║" + "          🏗️  Training Configuration          ".center(100) + "║")
+print("╚" + "═" * 100 + "╝")
 print(OmegaConf.to_yaml(train_cfg))
-print("╔" + "═" * 78 + "╗")
-print("║" + "          📊 Model Parameters                  ".center(78) + "║")
-print("╠" + "═" * 78 + "╣")
+print("╔" + "═" * 100 + "╗")
+print("║" + "          📊 Model Parameters                  ".center(100) + "║")
+print("╠" + "═" * 100 + "╣")
 
 total_params = sum(p.numel() for p in model.parameters())
 trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -276,13 +276,13 @@ for i in range(train_cfg.max_iters):
             best_tag = " 🏆 BEST" if is_best else ""
             prog = (optimizer_step - warmup_steps) / (max_steps - warmup_steps)
             print(
-                f"  ╭─ Step {optimizer_step:>5d}/{max_steps} {'─'*15} {best_tag}"
-                f"\n  ├ 🔴 train_loss:    {avg_loss:.4f}"
-                f"\n  ├ 🟢 val_loss:      {val_loss:.4f}   (ppl: {perplexity:.2f})"
-                f"\n  ├ ⚡ lr:            {lr:.2e}"
-                f"\n  ├ 📐 grad_norm:     {norm:.2f}"
-                f"\n  ├ 🚀 tok/s:         {tokens_per_sec:.0f}"
-                f"\n  └ 📉 decay_ratio:   {prog:.3f}"
+                f"├ Step {optimizer_step:>5d}/{max_steps} {'─'*15} {best_tag}"
+                f"├ 🔴 train_loss:    {avg_loss:.4f}"
+                f"├ 🟢 val_loss:      {val_loss:.4f}   (ppl: {perplexity:.2f})"
+                f"├ ⚡ lr:            {lr:.2e}"
+                f"├ 📐 grad_norm:     {norm:.2f}"
+                f"├ 🚀 tok/s:         {tokens_per_sec:.0f}"
+                f"├ 📉 decay_ratio:   {prog:.3f}"
             )
         else:
             log_dict = {
@@ -298,11 +298,11 @@ for i in range(train_cfg.max_iters):
             logger.log(log_dict, step=optimizer_step)
 
             print(
-                f"  ╭─ Step {optimizer_step:>5d}/{max_steps}"
-                f"\n  ├ 🔴 train_loss:    {avg_loss:.4f}"
-                f"\n  ├ ⚡ lr:            {lr:.2e}"
-                f"\n  ├ 📐 grad_norm:     {norm:.2f}"
-                f"\n  └ 🚀 tok/s:         {tokens_per_sec:.0f}"
+                f"├ Step {optimizer_step:>5d}/{max_steps}"
+                f"├ 🔴 train_loss:    {avg_loss:.4f}"
+                f"├ ⚡ lr:            {lr:.2e}"
+                f"├ 📐 grad_norm:     {norm:.2f}"
+                f"├ 🚀 tok/s:         {tokens_per_sec:.0f}"
             )
 
 print("╔" + "═" * 78 + "╗")
