@@ -19,11 +19,12 @@ max_lr = train_cfg.max_lr
 min_lr = max_lr * 0.1
 
 # Create directories
-logs_dir = Path("./content/LiteGPT/logs")
-results_dir = Path("./content/LiteGPT/results")
-checkpoints_dir = Path("./content/LiteGPT/checkpoints")
+logs_dir = Path("./logs")
+results_dir = Path("./results")
+checkpoints_dir = Path("./checkpoints")
 logs_dir.mkdir(parents=True, exist_ok=True)
 results_dir.mkdir(parents=True, exist_ok=True)
+checkpoints_dir.mkdir(parents=True, exist_ok=True)
 
 # Initialize wandb logger
 config = cast(dict[str, Any], OmegaConf.to_container(train_cfg, resolve=True))
@@ -185,20 +186,20 @@ for i in range(train_cfg.max_iters):
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
 
-        # # Compute weight_norm before update
-        # weight_norm = torch.sqrt(
-        #     sum(p.data.norm() ** 2 for p in model.parameters())
-        # ).item()
-        # pre_params = [p.data.clone() for p in model.parameters()]
+        # Compute weight_norm before update
+        weight_norm = torch.linalg.vector_norm(
+            torch.nn.utils.parameters_to_vector(model.parameters())
+        ).item()
+        pre_params = [p.data.clone() for p in model.parameters()]
 
         optimizer.step()
 
         # Compute update_norm and update_ratio
-        # update_norm = math.sqrt(
-        #     sum((p.data - pre).norm().item() ** 2 for p, pre in zip(model.parameters(), pre_params))
-        # )
-        # del pre_params
-        # update_ratio = update_norm / weight_norm if weight_norm > 0 else 0.0
+        update_norm = math.sqrt(
+            sum((p.data - pre).norm().item() ** 2 for p, pre in zip(model.parameters(), pre_params))
+        )
+        del pre_params
+        update_ratio = update_norm / weight_norm if weight_norm > 0 else 0.0
 
         optimizer.zero_grad()
 
@@ -233,13 +234,12 @@ for i in range(train_cfg.max_iters):
                 "train/learning_rate": lr,
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
-                # "train/weight_norm": weight_norm,
-                # "train/update_norm": update_norm,
-                # "train/update_ratio": update_ratio,
-                # "train/attention_entropy": attention_entropy,
+                "train/weight_norm": weight_norm,
+                "train/update_norm": update_norm,
+                "train/update_ratio": update_ratio,
                 "val/loss": val_loss,
                 "val/perplexity": perplexity,
-                "train/step": optimizer_step,
+                "optimizer/step": optimizer_step,
             }
 
             # Log to wandb
@@ -263,10 +263,9 @@ for i in range(train_cfg.max_iters):
                     "learning_rate": lr,
                     "grad_norm": norm.item(),
                     "tokens_per_sec": tokens_per_sec,
-                #     "weight_norm": weight_norm,
-                #     "update_norm": update_norm,
-                #     "update_ratio": update_ratio,
-                #     "attention_entropy": attention_entropy,
+                    "weight_norm": weight_norm,
+                    "update_norm": update_norm,
+                    "update_ratio": update_ratio
                 },
                 is_best=is_best,
             )
@@ -291,10 +290,10 @@ for i in range(train_cfg.max_iters):
                 "train/learning_rate": lr,
                 "train/grad_norm": norm.item(),
                 "train/tokens_per_sec": tokens_per_sec,
-                # "train/weight_norm": weight_norm,
-                # "train/update_norm": update_norm,
-                # "train/update_ratio": update_ratio,
-                "train/step": optimizer_step,
+                "train/weight_norm": weight_norm,
+                "train/update_norm": update_norm,
+                "train/update_ratio": update_ratio,
+                "optimizer/step": optimizer_step,
             }
             logger.log(log_dict, step=optimizer_step)
 
@@ -338,9 +337,9 @@ with open(logs_file, "w") as f:
             "tokens_per_sec": metrics.tokens_per_sec,
             "val_losses": metrics.val_losses,
             "steps": metrics.steps,
-            # "weight_norms": metrics.weight_norms,
-            # "update_norms": metrics.update_norms,
-            # "update_ratios": metrics.update_ratios,
+            "weight_norms": metrics.weight_norms,
+            "update_norms": metrics.update_norms,
+            "update_ratios": metrics.update_ratios,
         },
         f,
         indent=2,

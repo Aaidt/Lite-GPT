@@ -27,9 +27,6 @@ if [ -f /content/train.bin ] && [ -f /content/val.bin ]; then
    mv /content/val.bin src/litegpt_25M/data/datasets/tokens/
 fi
 
-echo "📁  Creating folders for logging and checkpointing..."
-mkdir -p checkpoints results logs
-
 echo "📦  Installing uv and other packages..."
 pip install -q uv
 
@@ -60,4 +57,3 @@ case "$choice" in
    echo "✅  Setup complete. Training not started."
    ;;
 esac
-

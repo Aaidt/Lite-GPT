@@ -5,6 +5,8 @@ LiteGPT-16M_run*/
 benchmark*.json
 generated_text*.txt
 LiteGPT_25M_ckpt/
+tasks.md
+
 # Python
 __pycache__/
 *.pyc

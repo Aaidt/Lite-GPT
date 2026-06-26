@@ -1,7 +1,7 @@
-batch_size: 16
-grad_accum_steps: 8
+batch_size: 64
+grad_accum_steps: 2
 
-max_iters: 50000
+max_iters: 60000
 warmup_iters: 4000
 
 max_lr: 6e-4
