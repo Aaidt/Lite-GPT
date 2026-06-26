@@ -144,21 +144,27 @@ if __name__ == "__main__":
 
     # load checkpoint
     checkpoint_dir = Path(args.checkpoint)
+    if checkpoint_dir.exists():
+        if checkpoint_dir.is_dir():
+            model_path = checkpoint_dir / "model.safetensors"
+            if model_path.exists():
+                load_model(model, str(model_path))
+                print(f"  📂  Loaded model weights from {model_path}")
+            else:
+                print(f"  ⚠️  Warning: model file not found in checkpoint directory {checkpoint_dir}")
 
-    print(f"  📂  Loaded model weights from {checkpoint_dir / 'model.safetensors'}")
-            training_state = torch.load(
-                checkpoint_dir / "training_state.pt",
-                weights_only=True,
-            )
-            print(f"  📍  Checkpoint step: {training_state['step']}")
-
-    elif checkpoint_dir.suffix == ".safetensors":
-        load_model(
-            model,
-            str(checkpoint_dir)
-        )
-        print(f"  📂  Loaded model weights from {checkpoint_dir}")
-
+            training_state_path = checkpoint_dir / "training_state.pt"
+            if training_state_path.exists():
+                training_state = torch.load(
+                    training_state_path,
+                    weights_only=True,
+                )
+                print(f"  📍  Checkpoint step: {training_state['step']}")
+        elif checkpoint_dir.suffix == ".safetensors":
+            load_model(model, str(checkpoint_dir))
+            print(f"  📂  Loaded model weights from {checkpoint_dir}")
+        else:
+            print(f"  ⚠️  Warning: Unsupported checkpoint file type: {checkpoint_dir}")
     else:
         print(f"  ⚠️  Warning: Checkpoint not found at {args.checkpoint}")
 

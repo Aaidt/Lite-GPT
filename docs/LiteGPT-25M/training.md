@@ -102,18 +102,18 @@ Config:
 Results:
 Observations: -->
 
-## Expected range
+<!-- ## Expected range
 
 | Metric     | Good      |
 | ---------- | --------- |
-| Train Loss | <2        |
-| Val Loss   | ~2        |
-| Perplexity | <20       |
+| Train Loss | <2.5      |
+| Val Loss   | <2.5      |
+| Perplexity | <20       | -->
 
-<!-- ## Final Results
+## Final Results
 
 | Metric | Value |
 |---------|---------|
-| Train Loss | 2.878491520881653 |
-| Val Loss | 5.985600624084473 |
-| Perplexity | 397.6612944866264 | -->
+| Train Loss | 2.9977498054504395 |
+| Val Loss | 2.9335184621810915 |
+| Perplexity | 18.793639012453678 |
