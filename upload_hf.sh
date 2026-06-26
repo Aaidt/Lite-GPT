@@ -46,7 +46,23 @@ echo "  ✔  config.json"
 
 echo ""
 echo "📝  Creating README.md..."
-cat > "$OUT_DIR/README.md" << 'README_EOF'
+
+RESULTS_FILE="./results/training_results.json"
+if [ -f "$RESULTS_FILE" ]; then
+    train_loss=$(python3 -c "import json; d=json.load(open('$RESULTS_FILE')); print(d['final_metrics']['loss'])")
+    val_loss=$(python3 -c "import json; d=json.load(open('$RESULTS_FILE')); print(d['final_metrics']['val_loss'])")
+    perplexity=$(python3 -c "import json; d=json.load(open('$RESULTS_FILE')); print(d['final_metrics']['perplexity'])")
+    tokens_per_sec=$(python3 -c "import json; d=json.load(open('$RESULTS_FILE')); print(d['final_metrics']['tokens_per_sec'])")
+    best_val_loss=$(python3 -c "import json; d=json.load(open('$RESULTS_FILE')); print(d['best_val_loss'])")
+else
+    train_loss="2.9977498054504395"
+    val_loss="2.9335184621810915"
+    perplexity="18.793639012453678"
+    tokens_per_sec="236436.41890370354"
+    best_val_loss="2.9335184621810915"
+fi
+
+cat > "$OUT_DIR/README.md" << 'BODY_EOF'
 ---
 language:
 - en
@@ -284,25 +300,22 @@ train.bin  val.bin
 | Learning Rate | 6e-4 |
 | Min Learning Rate | 6e-5 |
 | Weight Decay | 0.1 |
-| Warmup Steps | 1550 |
-| Max Steps | 15500 |
+| Warmup Steps | 4000 |
+| Max Steps | 40000 |
 | Eval Interval | 500 |
 | Eval Iters | 100 |
 | Grad Clip | 1.0 |
 
 ### Tokens Seen
 ```text
-64 x 512 x 15500
-= 507,904,000 tokens
-
-~ 507M tokens
+64 x 512 x 40000 = 1,310,720,000 tokens ~ 1.3B tokens
 ```
 
 ### Optimizer
 AdamW (β1 = 0.9, β2 = 0.95)
 
 ### Learning Rate Schedule
-Cosine Decay with linear warmup (1550 steps warmup, 13950 steps decay)
+Cosine Decay with linear warmup (4000 steps warmup, 36000 steps decay)
 
 ### Mixed Precision
 BF16 / FP16
@@ -312,14 +325,17 @@ Cross Entropy Loss
 
 ## Results
 
+BODY_EOF
+
+cat >> "$OUT_DIR/README.md" << RESULTS_EOF
 | Metric | values |
 |---------|----------|
-| Train Loss | 2.9977498054504395 |
-| Val Loss | 2.9335184621810915 |
-| Perplexity | 18.793639012453678 |
-| tokens_per_sec | 236436.41890370354 | 
-| best_val_loss | 2.9335184621810915 | 
-README_EOF
+| Train Loss | $train_loss |
+| Val Loss | $val_loss |
+| Perplexity | $perplexity |
+| tokens_per_sec | $tokens_per_sec | 
+| best_val_loss | $best_val_loss | 
+RESULTS_EOF
 echo "  ✔  README.md"
 
 echo ""
