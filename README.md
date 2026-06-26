@@ -8,12 +8,7 @@
 ███████╗██║   ██║   ███████╗    ╚██████╔╝██║        ██║   
 ```
 
-> *A clean, educational decoder-only Transformer language model (~25M parameters) trained from scratch on a single NVIDIA T4 GPU.*
-
-[![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python&logoColor=white)]()
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
-[![Parameters](https://img.shields.io/badge/params-24.6M-purple)]()
+> *A clean, educational decoder-only Transformer language model (~25M parameters) trained from scratch on a single NVIDIA A5000 GPU.*
 
 ---
 
@@ -41,7 +36,7 @@ The model incorporates modern LLM improvements over GPT-2:
 
 ### Datasets
 
-Trained on ~500M tokens (custom BPE tokenizer, vocab 16,384):
+Trained on ~1B tokens (custom BPE tokenizer, vocab 16,384):
 
 | Dataset | Tokens | Weight |
 |---|---|---|
@@ -55,16 +50,16 @@ Data is tokenized with a custom ByteLevel BPE tokenizer (vocab size 16,384), sto
 
 | Hyperparameter | Value |
 |---|---|
-| Effective batch size | 128 (16 per GPU × 8 grad accum) |
+| Effective batch size | 128 |
 | Sequence length | 512 |
 | Learning rate | 6e-4 → 6e-5 (cosine decay) |
-| Warmup steps | 1000 |
-| Max steps | 10000 |
+| Warmup steps | 4000 |
+| Max steps | 40000 |
 | Optimizer | AdamW (β₁=0.9, β₂=0.95) |
 | Precision | BF16/FP16 mixed |
-| Tokens seen | ~82M |
+| Tokens seen | ~1B |
 
-Trained on a **T4 16GB GPU** (Google Colab) using Cross Entropy Loss with cosine LR schedule and periodic checkpointing.
+Trained on a **NVIDIA A5000 GPU** (Runpod) using Cross Entropy Loss with cosine LR schedule and periodic checkpointing.
 <!-- 
 ### Results
 
