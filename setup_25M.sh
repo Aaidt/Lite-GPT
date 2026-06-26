@@ -15,7 +15,6 @@ if [ -d "Lite-GPT" ] && [ -d "Lite-GPT/.git" ]; then
    git pull
 else
    echo "📥  Cloning repository..."
-   rm -rf Lite-GPT
    git clone https://github.com/Aaidt/Lite-GPT.git
    cd Lite-GPT
 fi
@@ -34,7 +33,7 @@ echo "📦  Installing dependencies..."
 uv sync
 
 echo "📦  Installing the 500M token dataset..."
-python -m src.litegpt_25M.data.datasets
+uv run python -m src.litegpt_25M.data.datasets
 
 echo "🔍  Checking installed token files..."
 ls src/litegpt_25M/data/datasets/tokens
@@ -50,7 +49,7 @@ case "$choice" in
    echo "         🚀  Starting training...         "
    echo "══════════════════════════════════════════"
    echo ""
-   python -m src.litegpt_25M.training.train
+   uv run python -m src.litegpt_25M.training.train
    ;;
 *)
    echo ""
