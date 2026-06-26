@@ -6,6 +6,8 @@ benchmark*.json
 generated_text*.txt
 LiteGPT_25M_ckpt/
 tasks.md
+fixes.md
+25M/
 
 # Python
 __pycache__/

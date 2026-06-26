@@ -8,25 +8,25 @@
 ## Hyperparameters
 | Parameter             | Value |
 | --------------------- | ----- |
-| Batch Size            | 16    |
-| Gradient Accumulation | 8     |
+| Batch Size            | 64    |
+| Gradient Accumulation | 2     |
 | Effective Batch Size  | 128   |
 | Sequence Length       | 512   |
 | Learning Rate         | 6e-4  |
 | Min Learning Rate     | 6e-5  |
 | Weight Decay          | 0.1   |
-| Warmup Steps          | 1000  |
-| Max Steps             | 10000 |
+| Warmup Steps          | 1550  |
+| Max Steps             | 15500 |
 | Eval Interval         | 500   |
 | Eval Iters            | 100   |
 | Grad Clip             | 1.0   |
 
 ## Tokens Seen
 ```text
-16 × 512 × 8 x 10000
-= 655,360,000 tokens
+64 × 512 x 15500
+= 507,904,000 tokens
 
-≈ 655M tokens.
+≈ 507M tokens.
 ```
 
 ## Optimizer
@@ -106,9 +106,9 @@ Observations: -->
 
 | Metric     | Good      |
 | ---------- | --------- |
-| Train Loss | 2.8 - 3.5 |
-| Val Loss   | 3.0 - 4.5 |
-| Perplexity | 20 - 90   |
+| Train Loss | <2        |
+| Val Loss   | ~2        |
+| Perplexity | <20       |
 
 <!-- ## Final Results
 

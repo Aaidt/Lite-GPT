@@ -31,6 +31,7 @@ pip install -q uv
 
 echo "📦  Installing dependencies..."
 uv sync
+uv pip install setuptools
 
 echo "📦  Installing the 500M token dataset..."
 uv run python -m src.litegpt_25M.data.datasets
