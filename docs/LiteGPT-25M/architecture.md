@@ -63,6 +63,8 @@ Input Tokens [B, T]
 | Parameter | Value |
 |------------|---------|
 | n_layers | 8 |
+| batch_size | 64 | 
+| grad_accum_steps | 2 |
 | d_model | 448 |
 | n_heads | 8 |
 | head_dim | 56 |
@@ -106,7 +108,7 @@ x = x + FFN(x)
 
 ## Design Decisions
 
-This model incorporates a subset of modern LLM architectural improvements while remaining small enough to train from scratch on a single NVIDIA T4 GPU.
+This model incorporates a subset of modern LLM architectural improvements while remaining small enough to train from scratch on a single NVIDIA A5000 GPU.
 
 ### Modern Decoder Architecture
 
@@ -135,7 +137,7 @@ Key improvements over GPT-2 include:
 
 ### Small Scale Training
 
-The model is designed to train on a single NVIDIA T4 GPU using Google Colab. Model size, context length, and batch size are selected to balance training speed, memory usage, and model quality within a constrained compute budget.
+The model is designed to train on a single NVIDIA A5000 GPU. Model size, context length, and batch size are selected to balance training speed, memory usage, and model quality within a constrained compute budget.
 
 ### Educational Goal
 
