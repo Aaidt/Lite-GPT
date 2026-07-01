@@ -12,10 +12,7 @@
 
 ---
 
-📖 **Read the project blog at:**
-
-- [BLOG.md](./blog.md)
-- [Notion](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
+📖 **Read the project blog at:**[BLOG.md](./blog.md) | [Notion](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
 
 </div>
 
