@@ -18,9 +18,6 @@ dependencies = [
     "tiktoken>=0.13.0",
     "tqdm>=4.66.0",
     "wandb>=0.27.2",
-
-    # Keep this only if you actually use it.
-    "unsloth>=2025.11.1",
 ]
 
 [[tool.uv.index]]

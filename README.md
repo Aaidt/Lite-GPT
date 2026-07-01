@@ -10,10 +10,8 @@
 
 > A clean, educational decoder-only Transformer language model (~25M parameters) trained from scratch on a single NVIDIA A5000 GPU._
 
----
-
 > **📖 Read the project blog**  
-> [`blog.md`](./blog.md) · [Read on Notion →](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
+> [`blog.md`](./blog.md) | [Read the Notion doc →](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
 
 </div>
 
@@ -118,11 +116,11 @@ Trained on a **NVIDIA A5000 GPU** (Runpod) using Cross Entropy Loss with cosine 
 | Val Loss   | 2.8251807928085326 |
 | Perplexity | 16.863993599262944 |
 
+---
+
 # LiteGPT Evaluation Suite
 
 **Generated:** 2026-06-26 19:48:15
-
----
 
 ## Language modeling
 
@@ -168,10 +166,6 @@ Trained on a **NVIDIA A5000 GPU** (Runpod) using Cross Entropy Loss with cosine 
 
 - **Settings:** temperature=0.4, top_k=40, max_tokens=100
 
-### Prompt: Python is a programming language that
-
-- **Output:** Python is a programming language that is used to communicate to the audience. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into English. The language is translated into
-
 ### Prompt: The Internet works because
 
 - **Output:** The Internet works because it’s a platform that helps people with disabilities. What is a mobile app? A mobile app is a platform that allows people to use it to work, work, and play. It allows people to use it to work, and it allows them to use it to work. What is a mobile app? A mobile app is a platform that allows people to use it to work, work, and play. It is a platform that allows people to use it to work, work
@@ -185,14 +179,6 @@ Trained on a **NVIDIA A5000 GPU** (Runpod) using Cross Entropy Loss with cosine 
 ## Coding
 
 - **Settings:** temperature=0.2, top_k=20, max_tokens=150
-
-### Prompt: def factorial(n)
-
-- **Output:** def factorial(n): a) the use of the term "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "condition" in the context of a "cond
-
-### Prompt: class LinkedList
-
-- **Output:** class LinkedList: - LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: LinkedList: Linked
 
 ### Prompt: for i in range(10)
 
