@@ -1,18 +1,19 @@
 <div align="center">
 
-```
-██╗     ██╗████████╗███████╗     ██████╗ ██████╗ ████████╗
-██║     ██║╚══██╔══╝██╔════╝    ██╔════╝ ██╔══██╗╚══██╔══╝
+ ```
+    ██╗     ██╗████████╗███████╗     ██████╗ ██████╗ ████████╗
+    ██║     ██║╚══██╔══╝██╔════╝    ██╔════╝ ██╔══██╗╚══██╔══╝
 ██║     ██║   ██║   █████╗      ██║  ███╗██████╔╝   ██║
 ██║     ██║   ██║   ██╔══╝      ██║   ██║██╔═══╝    ██║
 ███████╗██║   ██║   ███████╗    ╚██████╔╝██║        ██║
 ```
 
-> _A clean, educational decoder-only Transformer language model (~25M parameters) trained from scratch on a single NVIDIA A5000 GPU._
+> A clean, educational decoder-only Transformer language model (~25M parameters) trained from scratch on a single NVIDIA A5000 GPU._
 
 ---
 
-📖 **Read the project blog at:**[BLOG.md](./blog.md) | [Notion](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
+> **📖 Read the project blog**  
+> [`blog.md`](./blog.md) · [Read on Notion →](https://verdant-tornado-ac3.notion.site/I-Trained-a-25M-Parameter-GPT-From-Scratch-Here-s-What-I-Learned-38db4d84363080a2a559d83b079771e8)
 
 </div>
 
